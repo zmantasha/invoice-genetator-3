@@ -17,7 +17,7 @@ export default function SharePage() {
   const fetchInvoice = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8002/api/v1/invoice/invoices/${id}`
+        `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}`
       );
       console.log(response); // Log the entire response for debugging
       const data = response.data;
