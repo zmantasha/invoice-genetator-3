@@ -7,7 +7,7 @@ import { BadgeInfo, BookMarked, Calendar, ChevronDown, Delete, Dot, Edit, User }
 import InvoiceGenerator from "../../../components/invoicee/invoiceGenerator";
 import PDFGenerator from "../../../components/invoicee/PDFGenerator";
 import { useUser } from "../../../hooks/UserContext";
-import { formatCurrency } from "@/lib/utils/format-currency";
+import { formatCurrency } from "../../../lib/utils/format-currency";
 
 export default function SharePage() {
   const { user } = useUser();
