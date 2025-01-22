@@ -16,9 +16,7 @@ export default function SharePage() {
   
   const fetchInvoice = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}`
-      );
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}`);
       console.log(response); // Log the entire response for debugging
       const data = response.data;
       console.log(data); // Log the data to check its structure
