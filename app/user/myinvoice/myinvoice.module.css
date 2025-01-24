@@ -259,14 +259,14 @@
   .invoiceTable th:nth-child(4), /* Due date */
   .invoiceTable td:nth-child(4),
   .invoiceTable th:nth-child(5), /* Status */
-  .invoiceTable td:nth-child(5) {
+  .invoiceTable td:nth-child(5),
+  .invoiceTable th:nth-child(6), /* Total */
+  .invoiceTable td:nth-child(6){
     display: none; /* Hide these columns */
   }
 
   .invoiceTable th:nth-child(2), /* Reference */
   .invoiceTable td:nth-child(2),
-  .invoiceTable th:nth-child(6), /* Total */
-  .invoiceTable td:nth-child(6),
   .invoiceTable th:nth-child(7), /* Action */
   .invoiceTable td:nth-child(7) {
     display: table-cell; /* Show the Reference and Total columns */
