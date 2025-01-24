@@ -113,12 +113,15 @@ export default function MyAccount() {
 
       if (response.data?.status === "success") {
         Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
-        Cookies.remove("isLoggedin");
+        // Cookies.remove("refreshToken");
+        // Cookies.remove("isLoggedin");
         router.push("/account/login");
       }
     } catch (error) {
       console.error("Failed to delete account:", error);
+      toast.error("Failed to delete account. Please try again.", {
+        position: "bottom-right",
+      });
     }
     setDeletePopupVisible(false);
   };
