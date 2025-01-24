@@ -125,9 +125,10 @@
         font-size: 14px;
     }
 
-    .moreOptionDropdown {
+   .moreOptionDropdown {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
 }
 
@@ -150,6 +151,11 @@
 
     .headerTop p {
         font-size: 13px;
+    }
+     .moreOptionDropdown {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
     }
 }
 
@@ -177,5 +183,10 @@
     .dropdownMenu div {
         font-size: 12px;
         padding: 10px 14px;
+    }
+     .moreOptionDropdown {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
     }
 }
