@@ -45,6 +45,13 @@ const NavBar: FC = () => {
   const handleLogout = async () => {
     try {
       const accessToken = Cookies.get("accessToken");
+  
+      if (!accessToken) {
+        toast.warn("You are not logged in.", { position: "bottom-right" });
+        router.push("/account/login");
+        return;
+      }
+  
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/logout`,
         {},
@@ -55,24 +62,17 @@ const NavBar: FC = () => {
           withCredentials: true,
         }
       );
-
+  
       if (response.data && response.data.status === "success") {
-        // Cookies.remove("accessToken");
-        // Cookies.remove("refreshToken");
-        // Cookies.remove("isLoggedin");
-        toast.success("user logout",{
-          position:"bottom-right"
-        })
+        Cookies.remove("accessToken");
+        toast.success("Successfully logged out.", { position: "bottom-right" });
         router.push("/account/login");
-      
         setShowDropdown(null);
         setShowMobileMenu(false);
       }
     } catch (error) {
-      console.log("Logout error:", error);
-      toast.error("some thing went wrong",{
-        position:"bottom-right"
-      })
+      console.error("Logout error:", error);
+      toast.error("Something went wrong while logging out.", { position: "bottom-right" });
     }
   };
 
