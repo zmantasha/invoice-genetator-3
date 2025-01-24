@@ -206,7 +206,9 @@ export function useInvoice(initialData?: InvoiceData) {
        toast.error(
           axios.isAxiosError(error)
             ? error.response?.data?.message || error.message
-            : 'Something went wrong. Please try again.'
+            : 'Something went wrong. Please try again.',{
+              position:"bottom-right"
+            }
         );
         // setTimeout(() => setServerErrorMessage(''), 5000);
       } finally {
