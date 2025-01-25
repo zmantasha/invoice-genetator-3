@@ -71,12 +71,12 @@ export default function LoginPage() {
   });
 
 
-  const handleGoogleLogin =async()=>{
-    window.open(
-      `${process.env.NEXT_PUBLIC_SERVER}/auth/google`,
-      "_self"
-    );
-  }
+  // const handleGoogleLogin =async()=>{
+  //   window.open(
+  //     `${process.env.NEXT_PUBLIC_SERVER}/auth/google`,
+  //     "_self"
+  //   );
+  // }
   return (
     <div className={styles.container}>
       <div className={styles.card}>
