@@ -1,15 +1,63 @@
 "use client";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { Button } from "../ui/button";
 import { Download } from "lucide-react";
+import { formatCurrency } from "@/lib/utils/format-currency";
+import "jspdf-autotable";
+interface InvoiceItem {
+  id: string;
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+interface InvoiceData {
+  invoiceDetails: {
+    number: string;
+    date: string;
+    dueDate: string;
+    paymentTerms: string;
+    poNumber: string;
+    currency: string;
+  };
+  senderDetails: {
+    name: string;
+    logo?: string;
+  };
+  recipientDetails: {
+    billTo: {
+      name: string;
+      address: string;
+    };
+    shipTo:{
+      name:string;
+      address: string;
+    }
+  };
+  items: InvoiceItem[];
+  totals: {
+    subtotal: number;
+    tax: number;
+    taxRate: number;
+    discount: number;
+    shipping: number;
+    discountType: "percentage" | "fixed";
+    shippingType: "percentage" | "fixed";
+    amountPaid: number,
+    total: number;
+    balanceDue: number,
+  };
+  notes?: string;
+  terms?: string;
+}
 
 interface PDFGeneratorProps {
-  invoiceElementId: string;
+  invoiceData: InvoiceData;
   fileName: string;
 }
 
-export default function PDFGenerator({ invoiceElementId, fileName }: PDFGeneratorProps) {
+export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProps) {
   const generatePDF = async () => {
     const invoiceElement = document.querySelector(`#${invoiceElementId}`);
     if (!invoiceElement) {
