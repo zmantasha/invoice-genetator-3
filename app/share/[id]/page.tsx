@@ -89,10 +89,10 @@ export default function SharePage() {
           </div>
 
             <div className={styles.headerButtons}>
-               <PDFGenerator
-              invoiceElementId="invoice"
-              fileName={invoiceItem?.invoiceDetails?.number || "invoice"}
-               />
+                 <PDFGenerator
+                    invoiceData={invoiceItem}
+                    fileName={invoiceItem?.invoiceDetails?.number || "invoice"}
+                  />
             </div>
           {/* View Invoice/ Main Section */}
           <hr />
