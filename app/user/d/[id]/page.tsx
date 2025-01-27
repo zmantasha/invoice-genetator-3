@@ -190,8 +190,8 @@ export default function ViewPage() {
                     onShare={handleShareUrl}
                     onClick={handleOpenModal}
                   /> */}
-                   <PDFGenerator
-                    invoiceElementId="invoice"
+                     <PDFGenerator
+                    invoiceData={invoiceItem}
                     fileName={invoiceItem?.invoiceDetails?.number || "invoice"}
                   />
                   
