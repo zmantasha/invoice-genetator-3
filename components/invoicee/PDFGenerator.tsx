@@ -1,3 +1,4 @@
+
 "use client";
 import jsPDF from "jspdf";
 import { Button } from "../ui/button";
@@ -59,12 +60,6 @@ interface PDFGeneratorProps {
 
 export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProps) {
   const generatePDF = async () => {
-    const invoiceElement = document.querySelector(`#${invoiceElementId}`);
-    if (!invoiceElement) {
-      console.error("Invoice element not found.");
-      return;
-    }
-
     try {
 const pdf = new jsPDF();
   const pageWidth = pdf.internal.pageSize.getWidth();
