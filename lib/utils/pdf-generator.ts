@@ -206,6 +206,7 @@
 // }
 
 
+
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { InvoiceData } from "../../types/invoice";
@@ -213,17 +214,15 @@ import { formatCurrency } from "./format-currency";
 
 export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Promise<Blob> {
   const doc = new jsPDF();
-
   const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
   
-  // Add company logo if exists and is a valid URL
+  // Header Section with Logo and Invoice Number
   if (invoice.senderDetails.logo) {
     const maxWidth = 60;
     const maxHeight = 30;
     
     const logoBase64 = await loadImage(invoice.senderDetails.logo);
-    
-    // Calculate aspect ratio
     const img = new Image();
     img.src = logoBase64;
     const aspectRatio = img.width / img.height;
@@ -235,42 +234,89 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
       width = height * aspectRatio;
     }
     
-    // Add image to PDF
-    doc.addImage(logoBase64, "JPEG", 20, 20, width, height);
+    doc.addImage(logoBase64, "JPEG", margin, margin, width, height);
+    doc.setFontSize(12);
+    doc.text(invoice.senderDetails.name, margin + width + 10, margin + height / 2);
   }
 
-  // Add invoice header
+  // Invoice Number (right-aligned)
   doc.setFontSize(24);
-  doc.text("INVOICE", pageWidth - 20, 30, { align: "right" });
+  doc.text(invoice.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
+
+  // Recipient and Invoice Details Grid (3 columns)
+  const gridY = margin + 40;
   
-  // Add invoice details
-  doc.setFontSize(10);
-  doc.text(`Invoice #: ${invoice.invoiceDetails.number}`, pageWidth - 20, 40, { align: "right" });
-  doc.text(`Date: ${invoice.invoiceDetails.date}`, pageWidth - 20, 45, { align: "right" });
-  doc.text(`Due Date: ${invoice.invoiceDetails.dueDate}`, pageWidth - 20, 50, { align: "right" });
-
-  // Add sender details
-  doc.setFontSize(14); 
-  doc.setFont("Arial", "normal");
-  doc.text("From:", 20, 70);
-  doc.setFontSize(12);
-  doc.text(invoice.senderDetails.name || "", 20, 80);
-  if (invoice.senderDetails.address) {
-    doc.text(invoice.senderDetails.address.split("\n"), 20, 85);
+  // Bill To Column
+  if (invoice.recipientDetails.billTo.name) {
+    doc.setFontSize(10);
+    doc.setTextColor(128, 128, 128);
+    doc.text("Bill To", margin, gridY);
+    doc.setTextColor(0, 0, 0);
+    doc.text(invoice.recipientDetails.billTo.name, margin, gridY + 7);
   }
 
-  // Add recipient details
-  doc.setFontSize(14);
-  doc.setFont("Arial", "normal");
-  doc.text("Bill To:", pageWidth - 20, 70, { align: "right" });
-  doc.setFontSize(12);
-  doc.text(invoice.recipientDetails.billTo.name || "",pageWidth - 20, 80, { align: "right" });
-  if (invoice.recipientDetails.billTo.address) {
-    doc.text(invoice.recipientDetails.billTo.address.split("\n"), pageWidth - 20, 85, { align: "right" });
+  // Ship To Column
+  if (invoice.recipientDetails.shipTo.name) {
+    const middleX = pageWidth / 2 - 20;
+    doc.setFontSize(10);
+    doc.setTextColor(128, 128, 128);
+    doc.text("Ship To", middleX, gridY);
+    doc.setTextColor(0, 0, 0);
+    doc.text(invoice.recipientDetails.shipTo.name, middleX, gridY + 7);
   }
 
-  // Add items table
-  const tableData = invoice.items.map(item => [
+  // Invoice Details Box (right column)
+  const detailsX = pageWidth - 80;
+  const rightMargin = 15;
+  // Only include details that have values
+  const detailsData = [
+    invoice.invoiceDetails.date && {
+      label: "Date",
+      value: new Date(invoice.invoiceDetails.date).toLocaleDateString()
+    },
+    invoice.invoiceDetails.paymentTerms && {
+      label: "Payment Terms",
+      value: invoice.invoiceDetails.paymentTerms
+    },
+    invoice.invoiceDetails.dueDate && {
+      label: "Due Date",
+      value: new Date(invoice.invoiceDetails.dueDate).toLocaleDateString()
+    },
+    invoice.invoiceDetails.poNumber && {
+      label: "PO Number",
+      value: invoice.invoiceDetails.poNumber
+    },
+    invoice.totals.balanceDue && {
+      label: "Balance",
+      value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency),
+      color: "#DC2626"
+    }
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  if (detailsData.length > 0) {
+    // Add gray background for details box
+    doc.setFillColor(250, 250, 250);
+    doc.rect(detailsX - 5, gridY - 5, 85-rightMargin, detailsData.length * 10 + 1, "F");
+
+    detailsData.forEach((detail, index) => {
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text(detail.label, detailsX, gridY + (index * 10));
+      doc.setTextColor(0, 0, 0);
+      doc.text(detail.value, pageWidth - margin, gridY + (index * 10), { align: "right" });
+    });
+  }
+
+  
+
+  // Items Table
+  // const tableY = gridY + 60;
+  const tableStartY = Math.max(
+    gridY + (detailsData.length > 0 ? detailsData.length * 10 + 10 : 10),
+    gridY + 30 // Minimum spacing from grid
+  );
+  const tableData = invoice.items.map((item, index) => [
+    (index + 1).toString(),
     item.description,
     item.quantity.toString(),
     formatCurrency(item.rate, invoice.invoiceDetails.currency),
@@ -278,53 +324,123 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   ]);
 
   (doc as any).autoTable({
-    startY: 100,
-    head: [["Description", "Quantity", "Rate", "Amount"]],
+    startY:tableStartY ,
+    head: [["Sr.No", "Item", "Quantity", "Rate", "Amount"]],
     body: tableData,
     theme: "grid",
+    // headStyles: { 
+    //   fillColor: [242, 242, 242],
+    //   textColor: [0, 0, 0],
+    //   fontSize: 10
+    // },
     headStyles: { fillColor: [51, 51, 51] },
     columnStyles: {
-      0: { cellWidth: 'auto' },
-      1: { cellWidth: 30, halign: 'right' },
-      2: { cellWidth: 40, halign: 'right' },
-      3: { cellWidth: 40, halign: 'right' },
+      0: { cellWidth: 20 },
+      1: { cellWidth: "auto" },
+      2: { cellWidth: 40, halign: "left" },
+      3: { cellWidth: 40, halign: "left" },
+      4: { cellWidth: 40, halign: "left" }
     },
+    styles: {
+      fontSize: 9,
+      cellPadding: 2
+    },
+    alternateRowStyles: {
+      fillColor: [250, 250, 250]
+    }
   });
 
-  // Add totals
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  // Totals and Notes Section
+  const finalY = (doc as any).lastAutoTable.finalY + 20;
   
-  // Right-aligned totals
-  const totalsX = pageWidth - 20;
-  doc.text(`Subtotal: ${formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency)}`, totalsX, finalY, { align: "right" });
-  doc.text(`Tax (${invoice.totals.taxRate}%): ${formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency)}`, totalsX, finalY + 7, { align: "right" });
-  doc.text(`Discount: ${formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency)}`, totalsX, finalY + 14, { align: "right" });
-  doc.text("INR: ₹1000", 20, 20);
-  // Final total
-  doc.setFontSize(12);
-  doc.setFont("Arial", "normal");
-  doc.text(`Total: ${formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency)}`, totalsX, finalY + 25, { align: "right" });
-
-  // Add notes and terms if they exist
+  // Calculate space needed for totals box
+  const totalsHeight = 70; // Fixed height for totals box
+  const totalsX = pageWidth - 80;
+  
+  // Notes and Terms (left column)
   if (invoice.notes || invoice.terms) {
-    doc.addPage();
+    doc.setFontSize(10);
+    let notesY = finalY;
+    const maxWidth = totalsX - margin - 10; // Maximum width for notes/terms
     
     if (invoice.notes) {
-      doc.setFontSize(12);
-      doc.setFont("Roboto", "normal");
-      doc.text("Notes:", 20, 20);
-      doc.setFont("Roboto", "normal");
-      doc.setFontSize(10);
-      doc.text(invoice.notes.split("\n"), 20, 30);
+      doc.setTextColor(128, 128, 128);
+      doc.text("Notes", margin, notesY);
+      doc.setTextColor(0, 0, 0);
+      
+      // Split notes into lines that fit within maxWidth
+      const noteLines = doc.splitTextToSize(invoice.notes, maxWidth);
+      doc.text(noteLines, margin, notesY + 7);
+      notesY += 10 + (noteLines.length * 5); // Adjust Y position based on number of lines
     }
     
     if (invoice.terms) {
-      doc.setFontSize(12);
-      doc.setFont("Roboto", "normal");
-      doc.text("Terms & Conditions:", 20, invoice.notes ? 80 : 20);
-      doc.setFont("Roboto", "normal");
-      doc.setFontSize(10);
-      doc.text(invoice.terms.split("\n"), 20, invoice.notes ? 90 : 30);
+      doc.setTextColor(128, 128, 128);
+      doc.text("Terms", margin, notesY + 5);
+      doc.setTextColor(0, 0, 0);
+      
+      // Split terms into lines that fit within maxWidth
+      const termLines = doc.splitTextToSize(invoice.terms, maxWidth);
+      doc.text(termLines, margin, notesY + 12);
+    }
+  }
+
+  // Totals Box (right column)
+  doc.setFillColor(250, 250, 250);
+  doc.rect(totalsX - 5, finalY - 5, 85-rightMargin, totalsHeight, "F");
+
+  const totalsData = [
+    { label: "Subtotal", value: formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency) },
+    { label: "Discount", value: formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency) },
+    { label: "Shipping", value: formatCurrency(invoice.totals.shipping, invoice.invoiceDetails.currency) },
+    { label: "Tax", value: formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency) },
+    { label: "Total", value: formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency), bold: true },
+    { label: "Amount Paid", value: formatCurrency(invoice.totals.amountPaid, invoice.invoiceDetails.currency) },
+    { label: "Balance Due", value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency), color: "#DC2626" }
+  ];
+
+  totalsData.forEach((total, index) => {
+    doc.setFontSize(9);
+    if (total.bold) {
+      doc.setFont("helvetica", "bold");
+    } else {
+      doc.setFont("helvetica", "normal");
+    }
+    
+    if (total.color) {
+      doc.setTextColor(220, 38, 38); // Red color for balance due
+    } else {
+      doc.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
+    }
+    
+    doc.text(total.label, totalsX, finalY + (index * 10));
+    doc.text(total.value, pageWidth - margin, finalY + (index * 10), { align: "right" });
+  });
+
+  // Check if we need to add a new page for long notes/terms
+  const currentY = doc.internal.getCurrentPageInfo().pageNumber === 1 ? 
+    finalY + Math.max(totalsHeight, (invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0) + (invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0) + 20) :
+    doc.internal.pageSize.height - 20;
+
+  if (currentY > doc.internal.pageSize.height - 20) {
+    doc.addPage();
+    let newPageY = 20;
+    
+    if (invoice.notes) {
+      doc.setTextColor(128, 128, 128);
+      doc.text("Notes", margin, newPageY);
+      doc.setTextColor(0, 0, 0);
+      const noteLines = doc.splitTextToSize(invoice.notes, pageWidth - (2 * margin));
+      doc.text(noteLines, margin, newPageY + 7);
+      newPageY += 10 + (noteLines.length * 5);
+    }
+    
+    if (invoice.terms) {
+      doc.setTextColor(128, 128, 128);
+      doc.text("Terms", margin, newPageY + 5);
+      doc.setTextColor(0, 0, 0);
+      const termLines = doc.splitTextToSize(invoice.terms, pageWidth - (2 * margin));
+      doc.text(termLines, margin, newPageY + 12);
     }
   }
 
@@ -332,6 +448,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
 }
 
 // Helper function to load an image as base64
+
 async function loadImage(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
