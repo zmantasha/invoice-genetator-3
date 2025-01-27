@@ -63,18 +63,19 @@ export default function MyAccount() {
         // Update avatar and logo if provided
         if (values.avatar) {
           const avatarFormData = new FormData();
-          avatarFormData.append("avatar", values.avatar);
-          const avatarUpdateUrl = `${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/me/${user?.user?._id}/avatar`;
+          avatarFormData.append("file", values.avatar);
+          const avatarUpdateUrl = `${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/me/avatar/${user?.user?._id}`;
           await axios.put(avatarUpdateUrl, avatarFormData, headers);
         }
 
         if (values.logo) {
           const logoFormData = new FormData();
-          logoFormData.append("logo", values.logo);
-          const logoUpdateUrl = `${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/me/${user?.user?._id}/logo`;
-          await axios.put(logoUpdateUrl, logoFormData, headers);
+          logoFormData.append("file", values.logo);
+          const logoUpdateUrl = `${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/me/logo/${user?.user?._id}`;
+        const data=  await axios.put(logoUpdateUrl, logoFormData, headers);
+        console.log(data)
         }
-
+      
        toast.success("Profile updated successfully!",{
         position:"bottom-right"
       });
@@ -203,6 +204,7 @@ export default function MyAccount() {
                   <input
                     type="file"
                     name="avatar"
+                     accept="image/*"
                     className={styles.input}
                     onChange={(event) =>
                       formik.setFieldValue(
@@ -218,6 +220,7 @@ export default function MyAccount() {
                     type="file"
                     name="logo"
                     className={styles.input}
+                    accept="image/*"
                     onChange={(event) =>
                       formik.setFieldValue(
                         "logo",
