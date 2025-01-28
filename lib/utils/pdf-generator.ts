@@ -217,27 +217,46 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   
-  // Header Section with Logo and Invoice Number
-  if (invoice.senderDetails.logo) {
-    const maxWidth = 60;
-    const maxHeight = 30;
-    
-    const logoBase64 = await loadImage(invoice.senderDetails.logo);
-    const img = new Image();
-    img.src = logoBase64;
-    const aspectRatio = img.width / img.height;
-    let width = maxWidth;
-    let height = width / aspectRatio;
-    
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * aspectRatio;
-    }
-    
-    doc.addImage(logoBase64, "JPEG", margin, margin, width, height);
-    doc.setFontSize(12);
-    doc.text(invoice.senderDetails.name, margin + width + 10, margin + height / 2);
-  }
+   // Header Section with Logo and Invoice Number
+      if (invoice.senderDetails.logo) {
+        const maxWidth = 60;
+        const maxHeight = 30;
+      
+        const logoBase64 = invoice.senderDetails.logo;
+        const img = new Image();
+        img.src = logoBase64;
+      
+        // Calculate aspect ratio and dimensions
+        const aspectRatio = img.width / img.height;
+        let width = maxWidth;
+        let height = width / aspectRatio;
+      
+        if (height > maxHeight) {
+          height = maxHeight;
+          width = height * aspectRatio;
+        }
+      
+        // Add rounded rectangle for border-radius effect
+        doc.setDrawColor(0); // Black border
+        doc.setLineWidth(0.5);
+        doc.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
+      
+        // Add the image
+        doc.addImage(logoBase64, "JPEG", margin, margin, width, height);
+      
+        // Add sender name next to the logo
+        doc.setFontSize(12);
+        doc.text(
+          invoice.senderDetails.name,
+          margin + width + 10,
+          margin + height / 2
+        );
+      } else {
+        // If no logo, display the name in column format
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(invoice.senderDetails.name, margin, margin + 10);
+      }
 
   // Invoice Number (right-aligned)
   doc.setFontSize(24);
