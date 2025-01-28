@@ -2,12 +2,15 @@
 
 /* CSS - myaccount.module.css */
 
+.myaccountPage{
+    background-color: #f4f7fc;
+    min-height: 100vh;
+}
 .myProfileContainer {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-color: #f4f7fc;
+    min-height: 20vh;
     padding: 20px;
 }
 
