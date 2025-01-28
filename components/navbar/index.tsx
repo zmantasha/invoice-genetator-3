@@ -233,9 +233,10 @@ const NavBar: FC = () => {
           </div>
         </div>
 
-        <button className={styles.hamburger} onClick={toggleMobileMenu} aria-label="Toggle menu">
+          {isLoggedin && <button className={styles.hamburger} onClick={toggleMobileMenu} aria-label="Toggle menu">
           <Menu size={24} />
         </button>
+          }
       </div>
     </nav>
   );
