@@ -13,10 +13,9 @@ export function calculateTax(subtotal: number, taxRate: number): number {
 
 export function calculateDiscount(
   subtotal: number,
-  discount: number,
-  discountType: "percentage" | "fixed"
+  discountType:number,
 ): number {
-  return discountType === "percentage" ? (subtotal * discount) / 100 : discount;
+  return  (subtotal * discountType) / 100 ;
 }
 
 export function calculateShipping(
@@ -33,5 +32,5 @@ export function calculateTotal(
   discount: number,
   shipping: number
 ): number {
-  return subtotal + tax + shipping - discount;
+  return subtotal + tax - discount+ shipping;
 }
