@@ -423,7 +423,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
       (invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0) +
       (invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0) + 20
     );
-  if (contentHeight doc.internal.pageSize.height - 20) {
+  if (contentHeight >doc.internal.pageSize.height - 20) {
     doc.addPage();
     let newPageY = 20;
     
