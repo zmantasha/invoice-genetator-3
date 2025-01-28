@@ -418,11 +418,12 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   });
 
   // Check if we need to add a new page for long notes/terms
-  const currentY = doc.internal.getCurrentPageInfo().pageNumber === 1 ? 
-    finalY + Math.max(totalsHeight, (invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0) + (invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0) + 20) :
-    doc.internal.pageSize.height - 20;
-
-  if (currentY > doc.internal.pageSize.height - 20) {
+  const contentHeight = finalY + Math.max(
+      totalsHeight,
+      (invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0) +
+      (invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0) + 20
+    );
+  if (contentHeight doc.internal.pageSize.height - 20) {
     doc.addPage();
     let newPageY = 20;
     
