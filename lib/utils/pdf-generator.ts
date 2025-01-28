@@ -469,23 +469,23 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
 
 // Helper function to load an image as base64
 
-async function loadImage(url: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/jpeg"));
-      } else {
-        reject(new Error("Failed to load image."));
-      }
-    };
-    img.onerror = reject;
-    img.src = url;
-  });
-}
+// async function loadImage(url: string): Promise<string> {
+//   return new Promise((resolve, reject) => {
+//     const img = new Image();
+//     img.onload = () => {
+//       const canvas = document.createElement('canvas');
+//       const ctx = canvas.getContext('2d');
+//       if (ctx) {
+//         canvas.width = img.width;
+//         canvas.height = img.height;
+//         ctx.drawImage(img, 0, 0);
+//         resolve(canvas.toDataURL("image/jpeg"));
+//       } else {
+//         reject(new Error("Failed to load image."));
+//       }
+//     };
+//     img.onerror = reject;
+//     img.src = url;
+//   });
+// }
 
