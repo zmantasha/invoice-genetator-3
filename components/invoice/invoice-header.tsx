@@ -87,7 +87,7 @@ const InvoiceHeader= memo(({
         if (axios.isAxiosError(error) && error.response) {
           console.error("Server responded with:", error.response.data);
         } else {
-          console.error("Unexpected error:", error.message);
+          console.error("Unexpected error:", error);
         }
       }
     }
