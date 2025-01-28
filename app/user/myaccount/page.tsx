@@ -128,6 +128,7 @@ export default function MyAccount() {
   };
 
   return (
+     <div className={styles.myaccountPage}>
     <div className={styles.myProfileContainer}>
       <div className={styles.profileCard}>
         <h2 className={styles.profileTitle}>My Profile</h2>
@@ -275,5 +276,6 @@ export default function MyAccount() {
         </div>
       )}
     </div>
+   </div>
   );
 }
