@@ -47,7 +47,7 @@ const initialInvoiceData: Omit<InvoiceData, '_id'> = {
     taxRate: 0,
     shipping: 0,
     discount: 0,
-    discountType: "percentage",
+    discountType: 0,
     shippingType: "percentage",
     total: 0,
     amountPaid: 0,
@@ -146,7 +146,6 @@ export function useInvoice(initialData?: InvoiceData) {
           tax: calculateTax(calculateSubtotal(values.items), values.totals.taxRate),
           discount: calculateDiscount(
             calculateSubtotal(values.items),
-            values.totals.discount,
             values.totals.discountType
           ),
           shipping: calculateShipping(
@@ -296,7 +295,6 @@ export function useInvoice(initialData?: InvoiceData) {
     const tax = calculateTax(subtotal, formik.values.totals.taxRate);
     const discount = calculateDiscount(
       subtotal,
-      formik.values.totals.discount,
       formik.values.totals.discountType
     );
     const shipping = calculateShipping(
@@ -311,6 +309,7 @@ export function useInvoice(initialData?: InvoiceData) {
       ...formik.values.totals,
       subtotal,
       tax,
+      discount,
       total,
       balanceDue,
     });
@@ -320,7 +319,7 @@ export function useInvoice(initialData?: InvoiceData) {
     // Recalculate subtotal, tax, discount, and shipping based on the items
     const subtotal = calculateSubtotal(formik.values.items);
     const tax = calculateTax(subtotal, totals.taxRate);
-    const discount = calculateDiscount(subtotal, totals.discount, totals.discountType);
+    const discount = calculateDiscount(subtotal, totals.discountType);
     const shipping = calculateShipping(subtotal, totals.shipping, totals.shippingType);
     
     // Keep the total as the calculated value, don't modify it based on the amountPaid
@@ -334,6 +333,7 @@ export function useInvoice(initialData?: InvoiceData) {
       ...totals,
       subtotal,
       tax,
+      discount,
       total,  // Keep total unchanged
       balanceDue,  // Update balance due
     });
