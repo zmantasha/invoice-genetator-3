@@ -97,7 +97,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         pdf.setFont("helvetica", "bold");
         pdf.text(
           invoiceData.senderDetails.name,
-          margin + width + 10,
+          margin + width + 8,
           margin + height / 2
         );
       } else {
