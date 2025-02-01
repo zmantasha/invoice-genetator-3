@@ -219,8 +219,8 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   
    // Header Section with Logo and Invoice Number
       if (invoice.senderDetails.logo) {
-        const maxWidth = 60;
-        const maxHeight = 30;
+        const maxWidth = 50;
+        const maxHeight = 25;
       
         const logoBase64 = invoice.senderDetails.logo;
         const img = new Image();
@@ -237,18 +237,19 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
         }
       
         // Add rounded rectangle for border-radius effect
-        doc.setDrawColor(0); // Black border
-        doc.setLineWidth(0.5);
-        doc.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
+        // doc.setDrawColor(0); // Black border
+        // doc.setLineWidth(0.5);
+        // doc.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
       
         // Add the image
         doc.addImage(logoBase64, "JPEG", margin, margin, width, height);
       
         // Add sender name next to the logo
-        doc.setFontSize(12);
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
         doc.text(
           invoice.senderDetails.name,
-          margin + width + 10,
+          margin + width + 8,
           margin + height / 2
         );
       } else {
@@ -370,122 +371,147 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   });
 
   // Totals and Notes Section
-  const finalY = (doc as any).lastAutoTable.finalY + 20;
+ const finalY = (doc as any).lastAutoTable.finalY + 20;
+      
+  // Fixed heights for sections
+  const totalsHeight = 55; // Height for totals box
+  // const notesHeight = invoiceData.notes ? 100 : 0; // Fixed height for notes
+  const notesHeight = invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0
+  const termsHeight = invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0
+  // const termsHeight = invoice.terms ? 100 : 0; // Fixed height for terms
+  const totalContentHeight = Math.max(totalsHeight, notesHeight + termsHeight);
   
-  // Calculate space needed for totals box
-  const totalsHeight = 70; // Fixed height for totals box
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const remainingSpace = pageHeight - finalY - 20; // 20px margin
   const totalsX = pageWidth - 80;
-  
-  // Notes and Terms (left column)
-  if (invoice.notes || invoice.terms) {
-    doc.setFontSize(10);
-    let notesY = finalY;
-    const maxWidth = totalsX - margin - 10; // Maximum width for notes/terms
-    
-    if (invoice.notes) {
-      doc.setTextColor(128, 128, 128);
-      doc.text("Notes", margin, notesY);
-      doc.setTextColor(0, 0, 0);
-      
-      // Split notes into lines that fit within maxWidth
-      const noteLines = doc.splitTextToSize(invoice.notes, maxWidth);
-      doc.text(noteLines, margin, notesY + 7);
-      notesY += 10 + (noteLines.length * 5); // Adjust Y position based on number of lines
-    }
-    
-    if (invoice.terms) {
-      doc.setTextColor(128, 128, 128);
-      doc.text("Terms", margin, notesY + 5);
-      doc.setTextColor(0, 0, 0);
-      
-      // Split terms into lines that fit within maxWidth
-      const termLines = doc.splitTextToSize(invoice.terms, maxWidth);
-      doc.text(termLines, margin, notesY + 12);
-    }
-  }
 
-  // Totals Box (right column)
-  doc.setFillColor(250, 250, 250);
-  doc.rect(totalsX - 5, finalY - 5, 85-rightMargin, totalsHeight, "F");
-
-  const totalsData = [
-    { label: "Subtotal", value: formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency) },
-    { label: "Discount", value: formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency) },
-    { label: "Shipping", value: formatCurrency(invoice.totals.shipping, invoice.invoiceDetails.currency) },
-    { label: "Tax", value: formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency) },
-    { label: "Total", value: formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency), bold: true },
-    { label: "Amount Paid", value: formatCurrency(invoice.totals.amountPaid, invoice.invoiceDetails.currency) },
-    { label: "Balance Due", value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency), color: "#DC2626" }
-  ];
-
-  totalsData.forEach((total, index) => {
-    doc.setFontSize(9);
-    if (total.bold) {
-      doc.setFont("helvetica", "bold");
-    } else {
-      doc.setFont("helvetica", "normal");
-    }
-    
-    if (total.color) {
-      doc.setTextColor(220, 38, 38); // Red color for balance due
-    } else {
-      doc.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
-    }
-    
-    doc.text(total.label, totalsX, finalY + (index * 10));
-    doc.text(total.value, pageWidth - margin, finalY + (index * 10), { align: "right" });
-  });
-
-  // Check if we need to add a new page for long notes/terms
-  const contentHeight = finalY + Math.max(
-      totalsHeight,
-      (invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0) +
-      (invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0) + 20
-    );
-  if (contentHeight >doc.internal.pageSize.height - 20) {
+  // Check if we need a new page
+  if (totalContentHeight > remainingSpace) {
+    // Add new page for all sections
     doc.addPage();
-    let newPageY = 20;
+    const newPageY = 20;
     
-    if (invoice.notes) {
-      doc.setTextColor(128, 128, 128);
-      doc.text("Notes", margin, newPageY);
-      doc.setTextColor(0, 0, 0);
-      const noteLines = doc.splitTextToSize(invoice.notes, pageWidth - (2 * margin));
-      doc.text(noteLines, margin, newPageY + 7);
-      newPageY += 10 + (noteLines.length * 5);
+    // Draw totals on new page
+    doc.setFillColor(250, 250, 250);
+    doc.rect(totalsX - 5, newPageY - 5, 85-rightMargin, totalsHeight, "F");
+
+    const totalsData = [
+      { label: "Subtotal", value: formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency) },
+      { label: "Discount", value: formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency) },
+      { label: "Shipping", value: formatCurrency(invoice.totals.shipping, invoice.invoiceDetails.currency) },
+      { label: "Tax", value: formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency) },
+      { label: "Total", value: formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency), bold: true },
+      { label: "Amount Paid", value: formatCurrency(invoice.totals.amountPaid, invoice.invoiceDetails.currency) },
+      { label: "Balance Due", value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency), color: "#DC2626" }
+    ];
+
+    totalsData.forEach((total, index) => {
+      doc.setFontSize(9);
+      if (total.bold) {
+        doc.setFont("helvetica", "bold");
+      } else {
+        doc.setFont("helvetica", "normal");
+      }
+      
+      if (total.color) {
+        doc.setTextColor(220, 38, 38);
+      } else {
+        doc.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
+      }
+      
+      doc.text(total.label, totalsX, newPageY + (index * 10));
+      doc.text(total.value, pageWidth - margin, newPageY + (index * 10), { align: "right" });
+    });
+
+    // Draw notes and terms
+    if (invoice.notes || invoice.terms) {
+      let contentY = newPageY;
+      const maxWidth = totalsX - margin - 10;
+      
+      if (invoice.notes) {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text("Notes", margin, contentY);
+        doc.setTextColor(0, 0, 0);
+        
+        const noteLines = doc.splitTextToSize(invoice.notes, maxWidth);
+        doc.text(noteLines, margin, contentY + 7);
+        contentY += 10 + (noteLines.length * 5);
+        // contentY += notesHeight;
+      }
+      
+      if (invoice.terms) {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text("Terms", margin, contentY + 5);
+        doc.setTextColor(0, 0, 0);
+        
+        const termLines = doc.splitTextToSize(invoice.terms, maxWidth);
+        doc.text(termLines, margin, contentY + 12);
+      }
     }
-    
-    if (invoice.terms) {
-      doc.setTextColor(128, 128, 128);
-      doc.text("Terms", margin, newPageY + 5);
-      doc.setTextColor(0, 0, 0);
-      const termLines = doc.splitTextToSize(invoice.terms, pageWidth - (2 * margin));
-      doc.text(termLines, margin, newPageY + 12);
+  } else {
+    // Draw everything on current page
+    // Draw totals
+    doc.setFillColor(250, 250, 250);
+    doc.rect(totalsX - 5, finalY - 5, 85-rightMargin, totalsHeight, "F");
+
+    const totalsData = [
+      { label: "Subtotal", value: formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency) },
+      { label: "Discount", value: formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency) },
+      { label: "Shipping", value: formatCurrency(invoice.totals.shipping, invoice.invoiceDetails.currency) },
+      { label: "Tax", value: formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency) },
+      { label: "Total", value: formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency), bold: true },
+      { label: "Amount Paid", value: formatCurrency(invoice.totals.amountPaid, invoice.invoiceDetails.currency) },
+      { label: "Balance Due", value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency), color: "#DC2626" }
+    ];
+
+    totalsData.forEach((total, index) => {
+      doc.setFontSize(9);
+      if (total.bold) {
+        doc.setFont("helvetica", "bold");
+      } else {
+        doc.setFont("helvetica", "normal");
+      }
+      
+      if (total.color) {
+        doc.setTextColor(220, 38, 38);
+      } else {
+        doc.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
+      }
+      
+      doc.text(total.label, totalsX, finalY + (index * 10));
+      doc.text(total.value, pageWidth - margin, finalY + (index * 10), { align: "right" });
+    });
+
+    // Draw notes and terms
+    if (invoice.notes || invoice.terms) {
+      let contentY = finalY;
+      const maxWidth = totalsX - margin - 10;
+      
+      if (invoice.notes) {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text("Notes", margin, contentY);
+        doc.setTextColor(0, 0, 0);
+        
+        const noteLines = doc.splitTextToSize(invoice.notes, maxWidth);
+        doc.text(noteLines, margin, contentY + 7);
+        // contentY += notesHeight;
+        contentY += 10 + (noteLines.length * 5);
+      }
+      
+      if (invoice.terms) {
+        doc.setFontSize(10);
+        doc.setTextColor(128, 128, 128);
+        doc.text("Terms", margin, contentY + 5);
+        doc.setTextColor(0, 0, 0);
+        
+        const termLines = doc.splitTextToSize(invoice.terms, maxWidth);
+        doc.text(termLines, margin, contentY + 12);
+      }
     }
   }
 
   return doc.output("blob");
 }
-
-// Helper function to load an image as base64
-
-// async function loadImage(url: string): Promise<string> {
-//   return new Promise((resolve, reject) => {
-//     const img = new Image();
-//     img.onload = () => {
-//       const canvas = document.createElement('canvas');
-//       const ctx = canvas.getContext('2d');
-//       if (ctx) {
-//         canvas.width = img.width;
-//         canvas.height = img.height;
-//         ctx.drawImage(img, 0, 0);
-//         resolve(canvas.toDataURL("image/jpeg"));
-//       } else {
-//         reject(new Error("Failed to load image."));
-//       }
-//     };
-//     img.onerror = reject;
-//     img.src = url;
-//   });
-// }
-
