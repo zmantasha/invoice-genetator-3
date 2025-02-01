@@ -69,9 +69,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
 
       // Header Section with Logo and Invoice Number
       if (invoiceData.senderDetails.logo) {
-        const maxWidth = 60;
-        const maxHeight = 30;
-      
+       const maxHeight = 25;
         const logoBase64 = invoiceData.senderDetails.logo;
         const img = new Image();
         img.src = logoBase64;
@@ -87,15 +85,16 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         }
       
         // Add rounded rectangle for border-radius effect
-        pdf.setDrawColor(0); // Black border
-        pdf.setLineWidth(0.5);
-        pdf.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
+        // pdf.setDrawColor(0); // Black border
+        // pdf.setLineWidth(0.5);
+        // pdf.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
       
         // Add the image
         pdf.addImage(logoBase64, "JPEG", margin, margin, width, height);
       
         // Add sender name next to the logo
-        pdf.setFontSize(12);
+        pdf.setFontSize(14);
+        pdf.setFont("helvetica", "bold");
         pdf.text(
           invoiceData.senderDetails.name,
           margin + width + 10,
