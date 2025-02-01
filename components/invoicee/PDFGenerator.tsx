@@ -211,99 +211,146 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         }
       });
 
-      // Totals and Notes Section
+   // Totals and Notes Section
       const finalY = (pdf as any).lastAutoTable.finalY + 20;
       
-      // Calculate space needed for totals box
-      const totalsHeight = 70; // Fixed height for totals box
-      const totalsX = pageWidth - 80;
+      // Fixed heights for sections
+      const totalsHeight = 55; // Height for totals box
+      // const notesHeight = invoiceData.notes ? 100 : 0; // Fixed height for notes
+      const notesHeight = invoiceData.notes ? pdf.getTextDimensions(invoiceData.notes).h : 0
+      const termsHeight = invoiceData.terms ? pdf.getTextDimensions(invoiceData.terms).h : 0
+      // const termsHeight = invoiceData.terms ? 100 : 0; // Fixed height for terms
+      const totalContentHeight = Math.max(totalsHeight, notesHeight + termsHeight);
       
-      // Notes and Terms (left column)
-      if (invoiceData.notes || invoiceData.terms) {
-        pdf.setFontSize(10);
-        let notesY = finalY;
-        const maxWidth = totalsX - margin - 10; // Maximum width for notes/terms
-        
-        if (invoiceData.notes) {
-          pdf.setTextColor(128, 128, 128);
-          pdf.text("Notes", margin, notesY);
-          pdf.setTextColor(0, 0, 0);
-          
-          // Split notes into lines that fit within maxWidth
-          const noteLines = pdf.splitTextToSize(invoiceData.notes, maxWidth);
-          pdf.text(noteLines, margin, notesY + 7);
-          notesY += 10 + (noteLines.length * 5); // Adjust Y position based on number of lines
-        }
-        
-        if (invoiceData.terms) {
-          pdf.setTextColor(128, 128, 128);
-          pdf.text("Terms", margin, notesY + 5);
-          pdf.setTextColor(0, 0, 0);
-          
-          // Split terms into lines that fit within maxWidth
-          const termLines = pdf.splitTextToSize(invoiceData.terms, maxWidth);
-          pdf.text(termLines, margin, notesY + 12);
-        }
-      }
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const remainingSpace = pageHeight - finalY - 20; // 20px margin
+      const totalsX = pageWidth - 80;
 
-      // Totals Box (right column)
-      pdf.setFillColor(250, 250, 250);
-      pdf.rect(totalsX - 5, finalY - 5, 85-rightMargin, totalsHeight, "F");
-
-      const totalsData = [
-        { label: "Subtotal", value: formatCurrency(invoiceData.totals.subtotal, invoiceData.invoiceDetails.currency) },
-        { label: "Discount", value: formatCurrency(invoiceData.totals.discount, invoiceData.invoiceDetails.currency) },
-        { label: "Shipping", value: formatCurrency(invoiceData.totals.shipping, invoiceData.invoiceDetails.currency) },
-        { label: "Tax", value: formatCurrency(invoiceData.totals.tax, invoiceData.invoiceDetails.currency) },
-        { label: "Total", value: formatCurrency(invoiceData.totals.total, invoiceData.invoiceDetails.currency), bold: true },
-        { label: "Amount Paid", value: formatCurrency(invoiceData.totals.amountPaid, invoiceData.invoiceDetails.currency) },
-        { label: "Balance Due", value: formatCurrency(invoiceData.totals.balanceDue, invoiceData.invoiceDetails.currency), color: "#DC2626" }
-      ];
-
-      totalsData.forEach((total, index) => {
-        pdf.setFontSize(9);
-        if (total.bold) {
-          pdf.setFont("helvetica", "bold");
-        } else {
-          pdf.setFont("helvetica", "normal");
-        }
-        
-        if (total.color) {
-          pdf.setTextColor(220, 38, 38); // Red color for balance due
-        } else {
-          pdf.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
-        }
-        
-        pdf.text(total.label, totalsX, finalY + (index * 10));
-        pdf.text(total.value, pageWidth - margin, finalY + (index * 10), { align: "right" });
-      });
-
-      // Check if we need to add a new page for long notes/terms
-      const contentHeight = finalY + Math.max(
-        totalsHeight,
-        (invoiceData.notes ? pdf.getTextDimensions(invoiceData.notes).h : 0) +
-        (invoiceData.terms ? pdf.getTextDimensions(invoiceData.terms).h : 0) + 20
-      );
-
-      if (contentHeight > pdf.internal.pageSize.getHeight() - 20) {
+      // Check if we need a new page
+      if (totalContentHeight > remainingSpace) {
+        // Add new page for all sections
         pdf.addPage();
-        let newPageY = 20;
+        const newPageY = 20;
         
-        if (invoiceData.notes) {
-          pdf.setTextColor(128, 128, 128);
-          pdf.text("Notes", margin, newPageY);
-          pdf.setTextColor(0, 0, 0);
-          const noteLines = pdf.splitTextToSize(invoiceData.notes, pageWidth - (2 * margin));
-          pdf.text(noteLines, margin, newPageY + 7);
-          newPageY += 10 + (noteLines.length * 5);
+        // Draw totals on new page
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(totalsX - 5, newPageY - 5, 85-rightMargin, totalsHeight, "F");
+
+        const totalsData = [
+          { label: "Subtotal", value: formatCurrency(invoiceData.totals.subtotal, invoiceData.invoiceDetails.currency) },
+          { label: "Discount", value: formatCurrency(invoiceData.totals.discount, invoiceData.invoiceDetails.currency) },
+          { label: "Shipping", value: formatCurrency(invoiceData.totals.shipping, invoiceData.invoiceDetails.currency) },
+          { label: "Tax", value: formatCurrency(invoiceData.totals.tax, invoiceData.invoiceDetails.currency) },
+          { label: "Total", value: formatCurrency(invoiceData.totals.total, invoiceData.invoiceDetails.currency), bold: true },
+          { label: "Amount Paid", value: formatCurrency(invoiceData.totals.amountPaid, invoiceData.invoiceDetails.currency) },
+          { label: "Balance Due", value: formatCurrency(invoiceData.totals.balanceDue, invoiceData.invoiceDetails.currency), color: "#DC2626" }
+        ];
+
+        totalsData.forEach((total, index) => {
+          pdf.setFontSize(9);
+          if (total.bold) {
+            pdf.setFont("helvetica", "bold");
+          } else {
+            pdf.setFont("helvetica", "normal");
+          }
+          
+          if (total.color) {
+            pdf.setTextColor(220, 38, 38);
+          } else {
+            pdf.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
+          }
+          
+          pdf.text(total.label, totalsX, newPageY + (index * 10));
+          pdf.text(total.value, pageWidth - margin, newPageY + (index * 10), { align: "right" });
+        });
+
+        // Draw notes and terms
+        if (invoiceData.notes || invoiceData.terms) {
+          let contentY = newPageY;
+          const maxWidth = totalsX - margin - 10;
+          
+          if (invoiceData.notes) {
+            pdf.setFontSize(10);
+            pdf.setTextColor(128, 128, 128);
+            pdf.text("Notes", margin, contentY);
+            pdf.setTextColor(0, 0, 0);
+            
+            const noteLines = pdf.splitTextToSize(invoiceData.notes, maxWidth);
+            pdf.text(noteLines, margin, contentY + 7);
+            contentY += 10 + (noteLines.length * 5);
+            // contentY += notesHeight;
+          }
+          
+          if (invoiceData.terms) {
+            pdf.setFontSize(10);
+            pdf.setTextColor(128, 128, 128);
+            pdf.text("Terms", margin, contentY + 5);
+            pdf.setTextColor(0, 0, 0);
+            
+            const termLines = pdf.splitTextToSize(invoiceData.terms, maxWidth);
+            pdf.text(termLines, margin, contentY + 12);
+          }
         }
-        
-        if (invoiceData.terms) {
-          pdf.setTextColor(128, 128, 128);
-          pdf.text("Terms", margin, newPageY + 5);
-          pdf.setTextColor(0, 0, 0);
-          const termLines = pdf.splitTextToSize(invoiceData.terms, pageWidth - (2 * margin));
-          pdf.text(termLines, margin, newPageY + 12);
+      } else {
+        // Draw everything on current page
+        // Draw totals
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(totalsX - 5, finalY - 5, 85-rightMargin, totalsHeight, "F");
+
+        const totalsData = [
+          { label: "Subtotal", value: formatCurrency(invoiceData.totals.subtotal, invoiceData.invoiceDetails.currency) },
+          { label: "Discount", value: formatCurrency(invoiceData.totals.discount, invoiceData.invoiceDetails.currency) },
+          { label: "Shipping", value: formatCurrency(invoiceData.totals.shipping, invoiceData.invoiceDetails.currency) },
+          { label: "Tax", value: formatCurrency(invoiceData.totals.tax, invoiceData.invoiceDetails.currency) },
+          { label: "Total", value: formatCurrency(invoiceData.totals.total, invoiceData.invoiceDetails.currency), bold: true },
+          { label: "Amount Paid", value: formatCurrency(invoiceData.totals.amountPaid, invoiceData.invoiceDetails.currency) },
+          { label: "Balance Due", value: formatCurrency(invoiceData.totals.balanceDue, invoiceData.invoiceDetails.currency), color: "#DC2626" }
+        ];
+
+        totalsData.forEach((total, index) => {
+          pdf.setFontSize(9);
+          if (total.bold) {
+            pdf.setFont("helvetica", "bold");
+          } else {
+            pdf.setFont("helvetica", "normal");
+          }
+          
+          if (total.color) {
+            pdf.setTextColor(220, 38, 38);
+          } else {
+            pdf.setTextColor(total.bold ? 0 : 128, total.bold ? 0 : 128, total.bold ? 0 : 128);
+          }
+          
+          pdf.text(total.label, totalsX, finalY + (index * 10));
+          pdf.text(total.value, pageWidth - margin, finalY + (index * 10), { align: "right" });
+        });
+
+        // Draw notes and terms
+        if (invoiceData.notes || invoiceData.terms) {
+          let contentY = finalY;
+          const maxWidth = totalsX - margin - 10;
+          
+          if (invoiceData.notes) {
+            pdf.setFontSize(10);
+            pdf.setTextColor(128, 128, 128);
+            pdf.text("Notes", margin, contentY);
+            pdf.setTextColor(0, 0, 0);
+            
+            const noteLines = pdf.splitTextToSize(invoiceData.notes, maxWidth);
+            pdf.text(noteLines, margin, contentY + 7);
+            // contentY += notesHeight;
+            contentY += 10 + (noteLines.length * 5);
+          }
+          
+          if (invoiceData.terms) {
+            pdf.setFontSize(10);
+            pdf.setTextColor(128, 128, 128);
+            pdf.text("Terms", margin, contentY + 5);
+            pdf.setTextColor(0, 0, 0);
+            
+            const termLines = pdf.splitTextToSize(invoiceData.terms, maxWidth);
+            pdf.text(termLines, margin, contentY + 12);
+          }
         }
       }
 
