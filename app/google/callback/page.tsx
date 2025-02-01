@@ -13,7 +13,7 @@ export default function GoogleCallbackPage() {
 
     if (token) {
       // Store token in a cookie (valid for 1 day)
-      Cookies.set("accessToken", token, { expires: 1, path: "/", secure: true, sameSite: "None" });
+      Cookies.set("accessToken", token, { expiresIn: "1h", path: "/", secure: true, sameSite: "None" });
 
       // Redirect smoothly without full reload
       router.replace("/user/myinvoice");
