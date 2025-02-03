@@ -136,7 +136,7 @@ const InvoiceItemsTable = memo(({ items, currency, onUpdateItems, formErrors, fo
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={addItem} className="text-green-600">
             <Plus className="w-4 h-4 mr-2" />
-            Add 1 Item
+            Add Item
           </Button>
           <Button variant="outline" onClick={add10Items} className="text-green-600">
             <Plus className="w-4 h-4 mr-2" />
