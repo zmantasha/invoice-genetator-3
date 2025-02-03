@@ -15,19 +15,16 @@ import {
   TooltipTrigger,
 } from "../../components/ui/tooltip";
 import { FormError } from "../ui/form-error";
-
 interface InvoiceItemsTableProps {
   items: InvoiceItem[];
   currency: string;
   onUpdateItems: (items: InvoiceItem[]) => void;
-  formErrors:any
-  formTouched:any
-}  
-
-const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,formTouched}: InvoiceItemsTableProps)=> {
+  formErrors: any;
+  formTouched: any;
+}
+const InvoiceItemsTable = memo(({ items, currency, onUpdateItems, formErrors, formTouched }: InvoiceItemsTableProps) => {
   const [focusedCell, setFocusedCell] = useState<{ rowId: string; column: string } | null>(null);
   const lastInputRef = useRef<HTMLInputElement>(null);
-
   const addItem = useCallback(() => {
     const newItem: InvoiceItem = {
       id: crypto.randomUUID(),
@@ -38,13 +35,11 @@ const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,for
     };
     onUpdateItems([...items, newItem]);
   }, [items, onUpdateItems]);
-
   useEffect(() => {
     if (lastInputRef.current && items.length > 0) {
       lastInputRef.current.focus();
     }
   }, [items.length]);
-
   const add10Items = useCallback(() => {
     const newItems = Array.from({ length: 10 }, () => ({
       id: crypto.randomUUID(),
@@ -55,7 +50,6 @@ const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,for
     }));
     onUpdateItems([...items, ...newItems]);
   }, [items, onUpdateItems]);
-
   const updateItem = useCallback((id: string, field: keyof InvoiceItem, value: string | number) => {
     const updatedItems = items.map((item) => {
       if (item.id === id) {
@@ -72,87 +66,83 @@ const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,for
     });
     onUpdateItems(updatedItems);
   }, [items, onUpdateItems]);
-
-
   const removeItem = useCallback((id: string) => {
     onUpdateItems(items.filter((item) => item.id !== id));
   }, [items, onUpdateItems]);
-
+  const createNewItem = (
+    description: string = "",
+    field?: 'quantity' | 'rate',
+    value?: number
+  ): InvoiceItem => {
+    const newItem: InvoiceItem = {
+      id: crypto.randomUUID(),
+      description,
+      quantity: 1,
+      rate: 0,
+      amount: 0,
+    };
+    if (field && value !== undefined) {
+      if (field === 'quantity' || field === 'rate') {
+        newItem[field] = value;
+        newItem.amount = calculateItemAmount(
+          field === 'quantity' ? value : newItem.quantity,
+          field === 'rate' ? value : newItem.rate
+        );
+      }
+    }
+    return newItem;
+  };
   const handleCellPaste = (e: React.ClipboardEvent<HTMLInputElement>, id: string, field: keyof InvoiceItem) => {
     e.stopPropagation();
     const clipboardData = e.clipboardData.getData('text');
-    
-    if (clipboardData.includes('\t') || clipboardData.includes('\n')) {
-      e.preventDefault();
-      handleTablePaste(e);
-      return;
-    }
-
-    const updatedItems = items.map(item => {
-      if (item.id === id) {
-        const value = field === 'description' ? clipboardData : parseFloat(clipboardData) || 0;
-        const updatedItem = { ...item, [field]: value };
-        if (field === "quantity" || field === "rate") {
-          updatedItem.amount = calculateItemAmount(
-            field === "quantity" ? value as number : item.quantity,
-            field === "rate" ? value as number : item.rate
-          );
+    const pastedValues = clipboardData.split(/[\n\t]/).map(v => v.trim()).filter(v => v);
+    if (pastedValues.length === 0) return;
+    e.preventDefault();
+    const currentIndex = items.findIndex(item => item.id === id);
+    if (currentIndex === -1) return;
+    const updatedItems = [...items];
+    pastedValues.forEach((value, offset) => {
+      const targetIndex = currentIndex + offset;
+      if (targetIndex >= updatedItems.length) {
+        // Create new item if needed
+        if (field === 'description') {
+          updatedItems.push(createNewItem(value));
+        } else if (field === 'quantity' || field === 'rate') {
+          const numericValue = parseFloat(value) || 0;
+          updatedItems.push(createNewItem('', field, numericValue));
         }
-        return updatedItem;
+      } else {
+        // Update existing item
+        const item = updatedItems[targetIndex];
+        if (field === 'description') {
+          updatedItems[targetIndex] = { ...item, description: value };
+        } else if (field === 'quantity' || field === 'rate') {
+          const numericValue = parseFloat(value) || 0;
+          const updatedItem = { ...item, [field]: numericValue };
+          updatedItem.amount = calculateItemAmount(
+            field === 'quantity' ? numericValue : item.quantity,
+            field === 'rate' ? numericValue : item.rate
+          );
+          updatedItems[targetIndex] = updatedItem;
+        }
       }
-      return item;
     });
     onUpdateItems(updatedItems);
   };
-
-  const handleTablePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const clipboardData = e.clipboardData.getData('text');
-    const rows = clipboardData.split('\n').filter(row => row.trim());
-
-    // Only process if we have valid data
-    if (rows.length === 0) return;
-
-    const newItems = rows.map(row => {
-      const [description = "", quantity = "0", rate = "0"] = row.split('\t');
-      return {
-        id: crypto.randomUUID(),
-        description: description.trim(),
-        quantity: parseFloat(quantity) || 0,
-        rate: parseFloat(rate) || 0,
-        amount: calculateItemAmount(parseFloat(quantity) || 0, parseFloat(rate) || 0),
-      };
-    }).filter(item => item.description || item.quantity > 0 || item.rate > 0); // Filter out completely empty rows
-
-    if (focusedCell) {
-      // Insert at focused position
-      const index = items.findIndex(item => item.id === focusedCell.rowId);
-      if (index !== -1) {
-        const updatedItems = [...items];
-        updatedItems.splice(index, 0, ...newItems);
-        onUpdateItems(updatedItems);
-        return;
-      }
-    }
-    
-    // Append to the end if no focus or focus not found
-    onUpdateItems([...items, ...newItems]);
-  };
-
   return (
-    <div className="space-y-4">
+   
+      <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={addItem} className="text-green-600">
             <Plus className="w-4 h-4 mr-2" />
-            Add Item
+            Add3 Item
           </Button>
           <Button variant="outline" onClick={add10Items} className="text-green-600">
             <Plus className="w-4 h-4 mr-2" />
             Add 10 Rows
           </Button>
         </div>
-
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -165,14 +155,13 @@ const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,for
             <TooltipContent className="max-w-xs">
               <p>You can paste data in two ways:</p>
               <ul className="list-disc ml-4 mt-2 space-y-1">
-                <li>Click any cell and paste to insert at that position</li>
+                <li>CClick any cell and paste to insert at that position</li>
                 <li>Or paste anywhere to add new rows at the bottom</li>
               </ul>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
-
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
@@ -211,7 +200,6 @@ const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,for
                     />
                       <FormError message={formErrors?.items?.[index]?.description}   className={formTouched.items?.[index]?.description ? "block": "hidden"}/>
                   </TableCell>
-                           
                   <TableCell>
                     <Input
                       type="number"
@@ -259,8 +247,8 @@ const InvoiceItemsTable= memo(({ items, currency, onUpdateItems , formErrors,for
           </TableBody>
         </Table>
       </div>
-    </div>
+    </div> 
   );
-})
+});
 InvoiceItemsTable.displayName = 'InvoiceItemsTable';
 export { InvoiceItemsTable };
