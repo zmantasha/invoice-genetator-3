@@ -65,12 +65,14 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
     try {
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const margin = 20;
-
+      const margin = 18;
+      let contentY = margin; // Track vertical position
+      
       // Header Section with Logo and Invoice Number
       if (invoiceData.senderDetails.logo) {
-        const maxWidth=50;
+        const maxWidth = 50;
         const maxHeight = 25;
+      
         const logoBase64 = invoiceData.senderDetails.logo;
         const img = new Image();
         img.src = logoBase64;
@@ -85,44 +87,53 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
           width = height * aspectRatio;
         }
       
-        // Add rounded rectangle for border-radius effect
-        // pdf.setDrawColor(0); // Black border
-        // pdf.setLineWidth(0.5);
-        // pdf.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
-      
         // Add the image
-        pdf.addImage(logoBase64, "JPEG", margin, margin, width, height);
-      
-        // Add sender name next to the logo
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text(
-          invoiceData.senderDetails.name,
-          margin + width + 8,
-          margin + height / 2
-        );
-      } else {
-        // If no logo, display the name in column format
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text(invoiceData.senderDetails.name, margin, margin + 10);
+        pdf.addImage(logoBase64, "JPEG", margin, margin, width, height,);
+        contentY += height + 4; // Adjust Y position below the image
       }
       
+      // Add "From" section (below the logo)
+      pdf.setFontSize(10);
+      pdf.setTextColor(128, 128, 128);
+      pdf.text("From:", margin, contentY);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(invoiceData.senderDetails.name, margin, contentY + 5);
+      
+      // Address label
+      pdf.setFontSize(10);
+      pdf.setTextColor(128, 128, 128);
+      pdf.text("Address:", margin, contentY + 12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(invoiceData.senderDetails.address, margin, contentY + 17);
+      contentY += 13; // Move further down
+      
       // Invoice Number (right-aligned)
+      if (invoiceData.senderDetails.logo) {
       pdf.setFontSize(24);
-      pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
-
+      pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 20, { align: "right" });
+      }else{
+        pdf.setFontSize(24);
+        pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
+      }
       // Recipient and Invoice Details Grid (3 columns)
-      const gridY = margin + 40;
+      const gridY = contentY + 18; // Adjust position
       
       // Bill To Column
       if (invoiceData.recipientDetails.billTo.name) {
         pdf.setFontSize(10);
         pdf.setTextColor(128, 128, 128);
-        pdf.text("Bill To", margin, gridY);
+        pdf.text("Bill To:", margin, gridY);
         pdf.setTextColor(0, 0, 0);
-        pdf.text(invoiceData.recipientDetails.billTo.name, margin, gridY + 7);
+        pdf.text(invoiceData.recipientDetails.billTo.name, margin, gridY + 5);
+      
+        // Address label
+        pdf.setFontSize(10);
+        pdf.setTextColor(128, 128, 128);
+        pdf.text("Address:", margin, gridY + 12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(invoiceData.recipientDetails.billTo.address, margin, gridY + 17);
       }
+      
 
       // Ship To Column
       if (invoiceData.recipientDetails.shipTo.name) {
@@ -131,7 +142,17 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         pdf.setTextColor(128, 128, 128);
         pdf.text("Ship To", middleX, gridY);
         pdf.setTextColor(0, 0, 0);
-        pdf.text(invoiceData.recipientDetails.shipTo.name, middleX, gridY + 7);
+        pdf.text(invoiceData.recipientDetails.shipTo.name, middleX, gridY + 5);
+
+
+        
+        // Address label
+        
+        pdf.setFontSize(10);
+        pdf.setTextColor(128, 128, 128);
+        pdf.text("Address:", middleX, gridY + 12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(invoiceData.recipientDetails.shipTo.address,middleX, gridY + 17);
       }
 
       // Invoice Details Box (right column)
