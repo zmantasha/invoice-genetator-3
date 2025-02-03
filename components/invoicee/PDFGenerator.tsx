@@ -69,7 +69,8 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
 
       // Header Section with Logo and Invoice Number
       if (invoiceData.senderDetails.logo) {
-       const maxHeight = 25;
+        const maxWidth=50;
+        const maxHeight = 25;
         const logoBase64 = invoiceData.senderDetails.logo;
         const img = new Image();
         img.src = logoBase64;
