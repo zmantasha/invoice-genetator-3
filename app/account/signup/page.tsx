@@ -126,9 +126,13 @@ export default function SignUpPage() {
              {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
             <div className={styles.error}>{formik.errors.confirmPassword}</div>
           ) : null}
-            <button type="submit" className={styles.button}>
-              Signup
-            </button>
+           <button 
+            type="submit" 
+            className={styles.button} 
+            disabled={formik.isSubmitting}
+          >
+             {formik.isSubmitting ? "Signing up..." : "Signup"}
+          </button>
             <p className={styles.text}>
               Don&apos;t have an account?{' '}
               <Link href="/account/login" className={styles.link}>
