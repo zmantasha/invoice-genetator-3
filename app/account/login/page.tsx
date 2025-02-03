@@ -108,8 +108,12 @@ export default function LoginPage() {
             <div className={styles.error}>{formik.errors.password}</div>
           ) : null}
 
-          <button type="submit" className={styles.button}>
-            Login
+         <button 
+            type="submit" 
+            className={styles.button} 
+            disabled={formik.isSubmitting}
+          >
+            {formik.isSubmitting ? "Logging in..." : "Login"}
           </button>
           <p className={styles.text}>
             Don&apos;t have an account?{' '}
