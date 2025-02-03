@@ -27,6 +27,7 @@ interface InvoiceData {
   senderDetails: {
     name: string;
     logo?: string;
+    address: string;
   };
   recipientDetails: {
     billTo: {
