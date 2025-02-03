@@ -215,7 +215,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
       const finalY = (pdf as any).lastAutoTable.finalY + 20;
       
       // Fixed heights for sections
-      const totalsHeight = 55; // Height for totals box
+      const totalsHeight = 70; // Height for totals box
       // const notesHeight = invoiceData.notes ? 100 : 0; // Fixed height for notes
       const notesHeight = invoiceData.notes ? pdf.getTextDimensions(invoiceData.notes).h : 0
       const termsHeight = invoiceData.terms ? pdf.getTextDimensions(invoiceData.terms).h : 0
