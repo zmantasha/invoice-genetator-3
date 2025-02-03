@@ -165,7 +165,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
  const finalY = (doc as any).lastAutoTable.finalY + 20;
       
   // Fixed heights for sections
-  const totalsHeight = 55; // Height for totals box
+  const totalsHeight = 70; // Height for totals box
   // const notesHeight = invoiceData.notes ? 100 : 0; // Fixed height for notes
   const notesHeight = invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0
   const termsHeight = invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0
