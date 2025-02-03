@@ -97,6 +97,10 @@
 .saveButton:hover {
     background-color: #317e33;
 }
+.saveButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 .dangerCard{
     background-color: #fff;
     border-radius: 12px;
