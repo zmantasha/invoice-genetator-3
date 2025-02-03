@@ -194,11 +194,13 @@ export function useInvoice(initialData?: InvoiceData) {
             position:"bottom-right"
           });
           
-          if (!isEditing) {
+           if (!isEditing) {
             resetForm();
             await generateInvoiceNumber();
+            router.push("/user/myinvoice"); // Redirect to /user/myinvoice when a new invoice is saved
+          } else {
+            router.push(`/user/d/${response.data._id}`); // Redirect to /user/d/[id] when an invoice is updated
           }
-          router.push("/user/myinvoice");
         }
       } catch (error) {
         console.error("Operation failed:", error);
