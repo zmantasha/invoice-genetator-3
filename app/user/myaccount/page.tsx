@@ -231,9 +231,13 @@ export default function MyAccount() {
                   />
                 </div>
             
-                <button type="submit" className={styles.saveButton}>
-                  Save
-                </button>
+                <button 
+                type="submit" 
+                className={styles.saveButton} 
+                disabled={formik.isSubmitting}
+              >
+                {formik.isSubmitting ? "Saving..." : "Save"}
+              </button>
               </form>
             </div>
 
