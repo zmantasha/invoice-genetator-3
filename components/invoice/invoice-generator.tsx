@@ -89,15 +89,15 @@ export default function InvoiceGenerator({ invoiceId }: { invoiceId?: string }) 
               </SelectContent>
             </Select>
           </div>
-          
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="text-green-600 w-full sm:w-auto"
-            onClick={() => saveInvoice()}
-          >
-            {invoiceId ? 'Update Invoice' : 'Save Invoice'}
-          </Button>
+              <Button 
+          type="button" 
+          variant="outline" 
+          className="text-green-600 w-full sm:w-auto"
+          onClick={() => saveInvoice()}
+          disabled={formik.isSubmitting}  // Disable when submitting
+        >
+          {formik.isSubmitting ? "Saving..." : invoiceId ? "Update Invoice" : "Save Invoice"}
+        </Button>
         </div>
       </div>
 
