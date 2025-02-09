@@ -111,8 +111,13 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   z-index: 1000;
-  width: 400px;
+  min-width: 280px; /* Ensures minimum width */
+  width: fit-content; /* Expands based on content */
+  max-width: 600px; /* Prevents it from being too wide */
   margin-top: 0.5rem;
+  padding: 0.5rem;
+  overflow: hidden;
+  white-space: nowrap; /* Prevents text from breaking */
 }
 
 .dropdownProfile {
@@ -121,6 +126,17 @@
   align-items: center;
   gap: 1.25rem;
   color: #b3b1b1;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.dropdownProfileEmail {
+  font-weight: bold;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .avatar{
    border: 1px solid gray;
@@ -133,11 +149,6 @@
   width: 100%;
   border-radius: 50%;
   object-fit: cover;
-}
-
-.dropdownProfileEmail {
-  font-weight: bold;
-  font-size: 0.875rem;
 }
 
 .dropdownProfileName {
