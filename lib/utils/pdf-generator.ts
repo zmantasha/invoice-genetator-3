@@ -6,7 +6,6 @@ import { formatCurrency } from "./format-currency";
 export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Promise<Blob> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
    const margin = 18;
   let contentY = margin;
    // Header Section with Logo and Invoice Number
