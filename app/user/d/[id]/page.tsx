@@ -18,7 +18,6 @@ export default function ViewPage() {
   const [invoiceItem, setInvoiceItem] = useState<any>(null); // Use 'any' if the invoiceItem structure is not defined yet
   const { id } = useParams();
   
-  console.log(typeof id)
   const router=useRouter()
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -112,33 +111,49 @@ export default function ViewPage() {
      router.push(`/user/editInvoice/${id}`)
   }
 
-  const handleStatusChange = async (id: string, currentStatus: string) => {
+ const handleStatusChange = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "Paid" ? "pending" : "Paid";
-
+    
+    // Calculate the total amount
+    const total = invoiceItem.totals.total;
+    
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}/status`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: newStatus,
+          total,
+          // When marking as paid, set amountPaid to total and balanceDue to 0
+          amountPaid: newStatus === "Paid" ? total : 0,
+          balanceDue: newStatus === "Paid" ? 0 : total,
+        }),
+      });
+  
+      if (response.ok) {
+        // Update the invoice status locally
+        setInvoiceItem((prevInvoice: any) => {
+          if (!prevInvoice) return null;
+          return {
+            ...prevInvoice,
+            status: newStatus,
+            totals: {
+              ...prevInvoice.totals,
+              // Update the amounts based on the new status
+              amountPaid: newStatus === "Paid" ? total : 0,
+              balanceDue: newStatus === "Paid" ? 0 : total,
             },
-            body: JSON.stringify({ status: newStatus }),
+          };
         });
-
-        if (response.ok) {
-          setInvoiceItem((prevInvoice: any) => {
-            if (!prevInvoice) return null;
-            return {
-              ...prevInvoice,
-              status: newStatus,
-            };
-          });
-        } else {
-            console.error("Failed to update invoice status.");
-        }
+      } else {
+        console.error("Failed to update invoice status.");
+      }
     } catch (error) {
-        console.error("Error updating status:", error);
+      console.error("Error updating status:", error);
     }
-};
+  };
 
 
   return (
