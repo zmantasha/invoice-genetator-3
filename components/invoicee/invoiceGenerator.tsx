@@ -1,8 +1,10 @@
 import { formatCurrency } from "../../lib/utils/format-currency";
 
 interface InvoiceItem {
-    senderDetails: { name: string;
-      logo:string; 
+    senderDetails: {
+    name: string,
+    logo:string, 
+     address: string
     };
     invoiceDetails: {
       number: string;
