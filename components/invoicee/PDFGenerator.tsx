@@ -261,7 +261,6 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         const totalsData = [
           { label: "Subtotal", value: formatCurrency(invoiceData.totals.subtotal, invoiceData.invoiceDetails.currency) },
           { label: "Discount", value: formatCurrency(invoiceData.totals.discount, invoiceData.invoiceDetails.currency) },
-          { label: "Shipping", value: formatCurrency(invoiceData.totals.shipping, invoiceData.invoiceDetails.currency) },
           { label: "Tax", value: formatCurrency(invoiceData.totals.tax, invoiceData.invoiceDetails.currency) },
           { label: "Total", value: formatCurrency(invoiceData.totals.total, invoiceData.invoiceDetails.currency), bold: true },
           { label: "Amount Paid", value: formatCurrency(invoiceData.totals.amountPaid, invoiceData.invoiceDetails.currency) },
