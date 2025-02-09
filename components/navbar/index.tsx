@@ -115,7 +115,7 @@ const NavBar: FC = () => {
     <nav className={styles.nav}>
       <div className={styles.navContent}>
         <div className={styles.leftContainer}>
-          <h3 className={styles.logo}>Invoice-Generator.com</h3>
+          <h3 className={styles.logo}>instantinvoicer.com</h3>
 
           <div
             className={`${styles.menuContainer} ${
