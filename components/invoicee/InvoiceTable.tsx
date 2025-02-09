@@ -107,7 +107,7 @@ export default function InvoiceTable({
           // When marking as paid, set amountPaid to total and balanceDue to 0
           amountPaid: newStatus === "Paid" ? total : 0,
           balanceDue: newStatus === "Paid" ? 0 : total,
-        }),,
+        }),
         });
 
         if (response.ok) {
