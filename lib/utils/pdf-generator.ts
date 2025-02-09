@@ -7,63 +7,72 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
-  
+   const margin = 18;
+  let contentY = margin;
    // Header Section with Logo and Invoice Number
-      if (invoice.senderDetails.logo) {
-        const maxWidth = 50;
-        const maxHeight = 25;
-      
-        const logoBase64 = invoice.senderDetails.logo;
-        const img = new Image();
-        img.src = logoBase64;
-      
-        // Calculate aspect ratio and dimensions
-        const aspectRatio = img.width / img.height;
-        let width = maxWidth;
-        let height = width / aspectRatio;
-      
-        if (height > maxHeight) {
-          height = maxHeight;
-          width = height * aspectRatio;
-        }
-      
-        // Add rounded rectangle for border-radius effect
-        // doc.setDrawColor(0); // Black border
-        // doc.setLineWidth(0.5);
-        // doc.roundedRect(margin, margin, width, height, 3, 3); // Rounded corners with radius 3
-      
-        // Add the image
-        doc.addImage(logoBase64, "JPEG", margin, margin, width, height);
-      
-        // Add sender name next to the logo
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text(
-          invoice.senderDetails.name,
-          margin + width + 8,
-          margin + height / 2
-        );
-      } else {
-        // If no logo, display the name in column format
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text(invoice.senderDetails.name, margin, margin + 10);
-      }
-
-  // Invoice Number (right-aligned)
-  doc.setFontSize(24);
-  doc.text(invoice.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
-
-  // Recipient and Invoice Details Grid (3 columns)
-  const gridY = margin + 40;
+     if (invoice.senderDetails.logo) {
+    const maxWidth = 50;
+    const maxHeight = 25;
   
-  // Bill To Column
+    const logoBase64 = invoice.senderDetails.logo;
+    const img = new Image();
+    img.src = logoBase64;
+  
+    // Calculate aspect ratio and dimensions
+    const aspectRatio = img.width / img.height;
+    let width = maxWidth;
+    let height = width / aspectRatio;
+  
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = height * aspectRatio;
+    }
+  
+    // Add the image
+    doc.addImage(logoBase64, "JPEG", margin, margin, width, height,);
+    contentY += height + 4; // Adjust Y position below the image
+  }
+  
+  // Add "From" section (below the logo)
+  doc.setFontSize(10);
+  doc.setTextColor(128, 128, 128);
+  doc.text("From:", margin, contentY);
+  doc.setTextColor(0, 0, 0);
+  doc.text(invoice.senderDetails.name, margin, contentY + 5);
+  
+  // Address label
+  doc.setFontSize(10);
+  doc.setTextColor(128, 128, 128);
+  doc.text("Address:", margin, contentY + 12);
+  doc.setTextColor(0, 0, 0);
+  doc.text(invoice.senderDetails.address, margin, contentY + 17);
+  contentY += 13; // Move further down
+  
+  // Invoice Number (right-aligned)
+  if (invoice.senderDetails.logo) {
+  doc.setFontSize(24);
+  doc.text(invoice.invoiceDetails.number, pageWidth - margin, margin + 20, { align: "right" });
+  }else{
+    doc.setFontSize(24);
+    doc.text(invoice.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
+  }
+  // Recipient and Invoice Details Grid (3 columns)
+  const gridY = contentY + 18;
+  
+   // Bill To Column
   if (invoice.recipientDetails.billTo.name) {
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
-    doc.text("Bill To", margin, gridY);
+    doc.text("Bill To:", margin, gridY);
     doc.setTextColor(0, 0, 0);
-    doc.text(invoice.recipientDetails.billTo.name, margin, gridY + 7);
+    doc.text(invoice.recipientDetails.billTo.name, margin, gridY + 5);
+  
+    // Address label
+    doc.setFontSize(10);
+    doc.setTextColor(128, 128, 128);
+    doc.text("Address:", margin, gridY + 12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(invoice.recipientDetails.billTo.address, margin, gridY + 17);
   }
 
   // Ship To Column
@@ -73,7 +82,17 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     doc.setTextColor(128, 128, 128);
     doc.text("Ship To", middleX, gridY);
     doc.setTextColor(0, 0, 0);
-    doc.text(invoice.recipientDetails.shipTo.name, middleX, gridY + 7);
+    doc.text(invoice.recipientDetails.shipTo.name, middleX, gridY + 5);
+
+
+    
+    // Address label
+    
+    doc.setFontSize(10);
+    doc.setTextColor(128, 128, 128);
+    doc.text("Address:", middleX, gridY + 12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(invoice.recipientDetails.shipTo.address,middleX, gridY + 17);
   }
 
   // Invoice Details Box (right column)
@@ -97,7 +116,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
       label: "PO Number",
       value: invoice.invoiceDetails.poNumber
     },
-    invoice.totals.balanceDue && {
+    invoice.totals.balanceDue || invoice.totals.balanceDue==0 && {
       label: "Balance",
       value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency),
       color: "#DC2626"
