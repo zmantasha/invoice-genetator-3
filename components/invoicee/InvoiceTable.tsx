@@ -96,7 +96,7 @@ export default function InvoiceTable({
     const newStatus = currentStatus === "Paid" ? "pending" : "Paid";
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}/status`, {
+        const response = await fetch(`http://localhost:8002/api/v1/invoice/invoices/${id}/status`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -118,6 +118,7 @@ export default function InvoiceTable({
         console.error("Error updating status:", error);
     }
 };
+
 
 
   return (
