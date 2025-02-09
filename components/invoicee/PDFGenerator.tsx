@@ -177,7 +177,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
           label: "PO Number",
           value: invoiceData.invoiceDetails.poNumber
         },
-        invoiceData.totals.balanceDue && {
+        invoiceData.totals.balanceDue ||invoiceData.totals.balanceDue==0 && {
           label: "Balance",
           value: formatCurrency(invoiceData.totals.balanceDue, invoiceData.invoiceDetails.currency),
           color: "#DC2626"
