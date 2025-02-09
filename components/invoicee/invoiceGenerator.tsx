@@ -13,8 +13,8 @@ interface InvoiceItem {
       currency: string;
     };
     recipientDetails: {
-      billTo: { name: string };
-      shipTo: { name: string };
+      billTo: { name: string,address: string };
+      shipTo: { name: string,address: string  };
     };
     userId:{
       logo:string;
@@ -31,6 +31,7 @@ interface InvoiceItem {
     };
     notes?: string;
     terms?: string;
+    status?:string;
   }
   
   export default function InvoiceGenerator({ invoiceItem }: { invoiceItem: InvoiceItem }) {
@@ -38,37 +39,59 @@ interface InvoiceItem {
       <>
         <div className="p-4 sm:p-6 lg:p-8">
           {/* Header Section */}
-          <div className="flex flex-col sm:flex-row sm:justify-between items-center">
-            <div className="flex items-center space-x-4">
+       <div className="flex flex-col sm:flex-row sm:justify-between items-start">
+            {/* Sender Details */}
+            <div className="flex flex-col sm:flex-row sm:items-center space-x-0 sm:space-x-4">
+              <div className="flex flex-col">
               {invoiceItem.senderDetails.logo && (
                 <img
-                  src={invoiceItem.senderDetails.logo || "profile"}
+                  src={invoiceItem.senderDetails.logo}
                   alt="Profile"
-                  className="w-20 h-20 sm:w-32 sm:h-32 object-cover rounded-sm"
+                  className="max-w-full max-h-full w-auto h-auto sm:w-32 sm:h-32 object-contain rounded-sm"
                 />
               )}
-              <p className="text-gray-900 text-center sm:text-left">
-                {invoiceItem.senderDetails.name}
-              </p>
+              <div className="mt-4 sm:mt-0">
+                <p className="text-gray-600">From</p>
+                <p className="text-gray-900  capitalize">{invoiceItem.senderDetails.name}</p>
+              </div>
+              <div className="mt-4 sm:mt-0">
+                <p className="text-gray-600">Address</p>
+                <p className="text-gray-900 capitalize">{invoiceItem.senderDetails.address}</p>
+              </div>
+              </div>
             </div>
+
+            {/* Invoice Number */}
             <h1 className="text-3xl sm:text-4xl mt-4 sm:mt-0">{invoiceItem.invoiceDetails.number}</h1>
           </div>
   
           {/* Recipient and Invoice Details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            <div>
+           <div>
               {invoiceItem.recipientDetails.billTo.name && (
                 <div>
                   <p className="text-gray-600">Bill To</p>
-                  <p>{invoiceItem.recipientDetails.billTo.name}</p>
+                  <p className="text-gray-900  capitalize">{invoiceItem.recipientDetails.billTo.name}</p>
                 </div>
               )}
-            </div>
-            <div>
+              {invoiceItem.recipientDetails.billTo.address && (
+                <div>
+                  <p className="text-gray-600 mt-3">Billing Address</p>
+                  <p className="text-gray-900 capitalize">{invoiceItem.recipientDetails.billTo.address}</p>
+                </div>
+              )}
+            </div
+           <div>
               {invoiceItem.recipientDetails.shipTo.name && (
                 <div>
                   <p className="text-gray-600">Ship To</p>
                   <p>{invoiceItem.recipientDetails.shipTo.name}</p>
+                </div>
+              )}
+              {invoiceItem.recipientDetails.shipTo.address && (
+                <div>
+                  <p className="text-gray-600 mt-3">Shipping Address</p>
+                  <p>{invoiceItem.recipientDetails.shipTo.address}</p>
                 </div>
               )}
             </div>
@@ -207,7 +230,7 @@ interface InvoiceItem {
               </div>
               <div className="flex justify-between py-2">
                 <p className="text-gray-600">Amount Paid</p>
-                <p>
+                <p className={invoiceItem.status === "Paid" ? "text-green-600 font-semibold" : ""}>
                   {formatCurrency(
                     invoiceItem.totals.amountPaid,
                     invoiceItem.invoiceDetails.currency
@@ -216,8 +239,8 @@ interface InvoiceItem {
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-bold text-red-600 py-2">
-                <p>Balance Due</p>
-                <p>
+              <p className={invoiceItem.status === "Paid" ? "text-green-600" : "text-red-600"}>Balance Due</p>
+              <p className={invoiceItem.status === "Paid" ? "text-green-600" : "text-red-600"}>
                   {formatCurrency(
                     invoiceItem.totals.balanceDue,
                     invoiceItem.invoiceDetails.currency
