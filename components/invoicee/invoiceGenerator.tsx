@@ -80,7 +80,7 @@ interface InvoiceItem {
                   <p className="text-gray-900 capitalize">{invoiceItem.recipientDetails.billTo.address}</p>
                 </div>
               )}
-            </div
+            </div>
            <div>
               {invoiceItem.recipientDetails.shipTo.name && (
                 <div>
