@@ -96,21 +96,35 @@ export default function InvoiceTable({
     const newStatus = currentStatus === "Paid" ? "pending" : "Paid";
 
     try {
-        const response = await fetch(`http://localhost:8002/api/v1/invoice/invoices/${id}/status`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}/status`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ status: newStatus }),
+            body:  JSON.stringify({
+          status: newStatus,
+          total,
+          // When marking as paid, set amountPaid to total and balanceDue to 0
+          amountPaid: newStatus === "Paid" ? total : 0,
+          balanceDue: newStatus === "Paid" ? 0 : total,
+        }),,
         });
 
         if (response.ok) {
             // Update the local state to reflect the new status
-            setInvoices((prevInvoices) =>
-                prevInvoices.map((invoice) =>
-                    invoice._id === id ? { ...invoice, status: newStatus } : invoice
-                )
-            );
+            setInvoices((prevInvoice: any) => {
+          if (!prevInvoice) return null;
+          return {
+            ...prevInvoice,
+            status: newStatus,
+            totals: {
+              ...prevInvoice.totals,
+              // Update the amounts based on the new status
+              amountPaid: newStatus === "Paid" ? total : 0,
+              balanceDue: newStatus === "Paid" ? 0 : total,
+            },
+          };
+        });
         } else {
             console.error("Failed to update invoice status.");
         }
