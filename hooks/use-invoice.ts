@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { InvoiceData } from "../types/invoice";
-import { generateInvoicePDF } from "../lib/utils/pdf-generator";
+import {generateInvoicedoc } from "../lib/utils/pdf-generator";
 import { toast } from "react-toastify";
 import {
   calculateSubtotal,
@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import { useUser } from "./UserContext";
 import { useFormik } from 'formik';
+import { FormikErrors } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 
@@ -74,6 +75,34 @@ const cleanMongoFields = (data: any): any => {
   }
   return cleaned;
 };
+const getEmptyFields = (errors: FormikErrors<InvoiceData>) => {
+  const emptyFieldMessages = [];
+  
+  // Check sender details
+  if (errors.senderDetails?.name) emptyFieldMessages.push('Business Name is required');
+  if (errors.senderDetails?.address) emptyFieldMessages.push('Business Address is required');
+  
+  // Check recipient details
+  if (errors.recipientDetails?.billTo?.name) emptyFieldMessages.push('Bill To Name is required');
+  if (errors.recipientDetails?.billTo?.address) emptyFieldMessages.push('Bill To Address is required');
+  
+  // Check invoice details
+  if (errors.invoiceDetails?.number) emptyFieldMessages.push('Invoice Number is required');
+  if (errors.invoiceDetails?.date) emptyFieldMessages.push('Invoice Date is required');
+  if (errors.invoiceDetails?.dueDate) emptyFieldMessages.push('Due Date is required');
+  
+  // Check items
+  if (errors.items && Array.isArray(errors.items)) {
+    errors.items.forEach((itemError: any, index: number) => {
+      if (itemError?.description) emptyFieldMessages.push(`Item ${index + 1}: Description is required`);
+      if (itemError?.quantity) emptyFieldMessages.push(`Item ${index + 1}: Quantity is required`);
+      if (itemError?.rate) emptyFieldMessages.push(`Item ${index + 1}: Rate is required`);
+    });
+  }
+  
+  return emptyFieldMessages;
+};
+
 
 export function useInvoice(initialData?: InvoiceData) {
   // const [serverErrorMessage, setServerErrorMessage] = useState('');
@@ -132,6 +161,29 @@ export function useInvoice(initialData?: InvoiceData) {
     validateOnChange: true,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
+          // Check for validation errors first
+        const errors = await formik.validateForm(values);
+        const emptyFieldMessages = getEmptyFields(errors);
+        
+        if (Object.keys(errors).length > 0) {
+          // Set all fields as touched to show Formik errors
+          formik.setTouched({
+            senderDetails: { name: true, address: true },
+            recipientDetails: { billTo: { name: true, address: true } },
+            invoiceDetails: { number: true, date: true, dueDate: true },
+            items: formik.values.items.map(() => ({ description: true, quantity: true, rate: true }))
+          }, true);
+
+          // Show individual toast notifications for each empty field
+          emptyFieldMessages.forEach(message => {
+            toast.error(message, {
+              position: "bottom-right",
+              autoClose: 5000,
+            });
+          });
+          return; // Stop submission if there are validation errors
+        }
+
         const isEditing = !!initialData;
         const url = isEditing 
           ? `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${initialData._id}`
@@ -155,14 +207,14 @@ export function useInvoice(initialData?: InvoiceData) {
           ),
         };
         
-        calculatedTotals.total = calculateTotal(
+        calculatedTotals.total =  Number(calculateTotal(
           calculatedTotals.subtotal,
           calculatedTotals.tax,
           calculatedTotals.discount,
           calculatedTotals.shipping
-        );
+        ));
  
-        calculatedTotals.balanceDue = calculatedTotals.total - calculatedTotals.amountPaid;
+        calculatedTotals.balanceDue =  Number(calculatedTotals.total - calculatedTotals.amountPaid);
 
         // Prepare the final values
         let finalValues = {
@@ -194,7 +246,7 @@ export function useInvoice(initialData?: InvoiceData) {
             position:"bottom-right"
           });
           
-           if (!isEditing) {
+          if (!isEditing) {
             resetForm();
             await generateInvoiceNumber();
             router.push("/user/myinvoice"); // Redirect to /user/myinvoice when a new invoice is saved
@@ -255,7 +307,7 @@ export function useInvoice(initialData?: InvoiceData) {
     }
   }, [user?.user._id, formik.setFieldValue]);
 
-  const generatePDF = useCallback(async () => {
+   const generatePDF = useCallback(async () => {
     try {
       const invoiceDataWithId = {
         ...formik.values,
@@ -274,6 +326,25 @@ export function useInvoice(initialData?: InvoiceData) {
       console.error('Error generating PDF:', error);
     }
   }, [formik.values, initialData]);
+  // const generatePDF = useCallback(async () => {
+  //   try {
+  //     const invoiceDataWithId = {
+  //       ...formik.values,
+  //       _id: initialData?._id || 'dummy-id', // Add a dummy or real _id here
+  //     };
+  //     const pdfBlob = await generateInvoicedoc(invoiceDataWithId);
+  //     const url = URL.createObjectURL(pdfBlob);
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.download = `invoice-${formik.values.invoiceDetails.number || 'draft'}.pdf`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     URL.revokeObjectURL(url);
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //   }
+  // }, [formik.values, initialData]);
   
 
   // Update functions that work with formik
@@ -350,7 +421,28 @@ export function useInvoice(initialData?: InvoiceData) {
     formik.setFieldValue("terms", terms);
   };
 
-  const saveInvoice = () => {
+  const saveInvoice = async () => {
+    // Validate form and show both Formik errors and toast notifications
+    const errors = await formik.validateForm();
+    const emptyFieldMessages = getEmptyFields(errors);
+    
+    // Set all fields as touched to show Formik errors
+    formik.setTouched({
+      senderDetails: { name: true, address: true },
+      recipientDetails: { billTo: { name: true, address: true } },
+      invoiceDetails: { number: true, date: true, dueDate: true },
+      items: formik.values.items.map(() => ({ description: true, quantity: true, rate: true })) 
+    }, true);
+    
+    // Show individual toast notifications for each empty field
+    emptyFieldMessages.forEach(message => {
+      toast.error(message, {
+        position: "bottom-right",
+        autoClose: 5000,
+      });
+    });
+    
+    // Continue with form submission
     formik.handleSubmit();
   };
 
@@ -370,6 +462,8 @@ export function useInvoice(initialData?: InvoiceData) {
     formik,
   };
 }
+
+
 
 
 
