@@ -96,6 +96,33 @@ export default function MyAccount() {
     }
   };
 
+
+    const handleDelete = async () => {
+    try {
+      const accessToken = Cookies.get("accessToken");
+      const deleteUrl = `${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/me/${user?.user?._id}`;
+      const response = await axios.delete(deleteUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        withCredentials: true,
+      });
+
+      if (response.data?.status === "success") {
+        Cookies.remove("accessToken");
+        // Cookies.remove("refreshToken");
+        // Cookies.remove("isLoggedin");
+        router.push("/account/login");
+      }
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      toast.error("Failed to delete account. Please try again.", {
+        position: "bottom-right",
+      });
+    }
+    setDeletePopupVisible(false);
+  };
+
   return (
     <div className={styles.myaccountPage}>
       <div className={styles.myProfileContainer}>
@@ -211,7 +238,7 @@ export default function MyAccount() {
             <div className={styles.popup}>
               <h3>Are you sure you want to delete your account?</h3>
               <div className={styles.popupButtons}>
-                <button className={styles.confirmButton} onClick={() => {}}>
+                <button className={styles.confirmButton} onClick={() => {handleDelete()}}>
                   Confirm
                 </button>
                 <button className={styles.cancelButton} onClick={() => setDeletePopupVisible(false)}>
