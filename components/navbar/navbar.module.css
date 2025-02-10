@@ -266,6 +266,7 @@
   .dropdownMenu {
     position: static;
     width: 100%;
+    max-width:none;
     margin-top: 0.5rem;
   }
 }
