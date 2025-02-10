@@ -302,7 +302,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
 
             const noteLines = pdf.splitTextToSize(invoiceData.notes, maxWidth);
             pdf.text(noteLines, margin, contentY + 7);
-            contentY += notesHeight;
+            contentY += 10 + (noteLines.length * 5);
           }
 
           if (invoiceData.terms) {
@@ -360,7 +360,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
 
             const noteLines = pdf.splitTextToSize(invoiceData.notes, maxWidth);
             pdf.text(noteLines, margin, contentY + 7);
-            contentY += notesHeight;
+            contentY += 10 + (noteLines.length * 5);
           }
 
           if (invoiceData.terms) {
