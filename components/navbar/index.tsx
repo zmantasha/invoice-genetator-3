@@ -20,8 +20,6 @@ const NavBar: FC = () => {
   const pathname = usePathname();
   const { user, fetchUserProfile } = useUser();
   const dropdownRef = useRef<HTMLDivElement | null>(null);  // Type ref here
-  
-  console.log(user)
   const checkLoginStatus = () => {
     const isloggedinCookie = Cookies.get("accessToken");
     // const isloggedinCookie= localStorage.getItem("accessToken")
