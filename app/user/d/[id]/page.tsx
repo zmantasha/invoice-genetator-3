@@ -41,7 +41,7 @@ export default function ViewPage() {
       setShareUrl(generatedUrl);
       setModalOpen(true);
   }; 
-  console.log(invoiceItem)
+
 
 
   const handleShare = (platform: string) => {
@@ -79,7 +79,6 @@ export default function ViewPage() {
   }, [id]);
 
   const toggleDropdown = () => {
-    console.log("dropdoen")
     setShowDropdown((prev) => (prev ? null : "dropdown"));
   };
 
