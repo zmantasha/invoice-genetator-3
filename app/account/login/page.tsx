@@ -19,8 +19,6 @@ interface FormValues {
 
 
 export default function LoginPage() {
-    // const [serverErrorMessage, setServerErrorMessage] = useState('')
-    // const [serverSuccessMessage, setServerSuccessMessage] = useState('')
     const router = useRouter()
     
   const formik = useFormik<FormValues>({
@@ -31,27 +29,19 @@ export default function LoginPage() {
     validationSchema:loginSchema,
     onSubmit: async(values,{resetForm}) => {
       try {
-        console.log('Form submitted:', values);
         // Handle form submission (e.g., API call)
         const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER}/api/v1/user/login`,values,{withCredentials:true})
-        console.log(response)
         if(response.data  && response.data.message=== "loginSuccessfull"){
           toast.success(response.data.message, {
             position: "bottom-right",
           })
-          // setServerErrorMessage('')
           resetForm()
           
           // localStorage.setItem("accessToken",response.data.token)
           setCookie('accessToken', response.data.token);
           router.push("/user/myinvoice")
-             // Hide success message after 5 seconds
-        // setTimeout(() => {
-        //   toast.success('');
-        // }, 5000);
         }
       } catch (error) {
-       console.log(error) 
        if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || error.message|| 'login failed', {
           position: "bottom-right",
@@ -61,10 +51,6 @@ export default function LoginPage() {
           position: "bottom-right",
         });
       }
-         // Hide success message after 5 seconds
-        //  setTimeout(() => {
-        //   toast.error('');
-        // }, 5000);
       }
     
     },
