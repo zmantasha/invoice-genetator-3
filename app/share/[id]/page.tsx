@@ -37,7 +37,7 @@ export default function SharePage() {
     }
   };
 
-  console.log("invoice",invoiceItem)
+  
   useEffect(() => {
     if (id) {
       fetchInvoice(); // Fetch the invoice when the component mounts or when `id` changes
