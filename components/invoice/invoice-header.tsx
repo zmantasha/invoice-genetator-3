@@ -8,6 +8,7 @@ import { FormError } from "../../components/ui/form-error";
 import React, { memo } from 'react';
 import Cookies from "js-cookie";
 import axios from "axios";
+import { toast } from "react-toastify";
 interface InvoiceHeaderProps {
   senderDetails: {
     logo: string;
@@ -61,37 +62,46 @@ const InvoiceHeader= memo(({
   //   }
   // };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-  
-      try {
-        const accessToken = Cookies.get("accessToken");
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/upload-logo`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            withCredentials: true, // Ensures cookies are sent with the request
-          }
-        );
-  
-        const { data } = response;
-        onUpdateSender({ ...senderDetails, logo: data.logoUrl });
-      } catch (error) {
-        console.error("Error uploading logo:", error);
-        if (axios.isAxiosError(error) && error.response) {
-          console.error("Server responded with:", error.response.data);
-        } else {
-          console.error("Unexpected error:", error);
+const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const accessToken = Cookies.get("accessToken");
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/upload-logo`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true, // Ensures cookies are sent with the request
         }
+      );
+
+      const { data } = response;
+      toast.success("Logo uploaded successfully!", {
+        position: "bottom-right",
+      });
+
+      onUpdateSender({ ...senderDetails, logo: data.logoUrl });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(`Upload failed: ${error.response.data.message || "Server error"}`, {
+          position: "bottom-right",
+        });
+      } else {
+        toast.error("Unexpected error occurred while uploading.", {
+          position: "bottom-right",
+        });
       }
     }
-  };
+  }
+};
+
   
 
   const removeLogo = () => {
