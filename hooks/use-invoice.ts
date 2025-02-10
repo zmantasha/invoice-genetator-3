@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { InvoiceData } from "../types/invoice";
-import {generateInvoicedoc } from "../lib/utils/pdf-generator";
+import {generateInvoicePDF} from "../lib/utils/pdf-generator";
 import { toast } from "react-toastify";
 import {
   calculateSubtotal,
