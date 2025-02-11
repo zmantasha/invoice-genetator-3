@@ -139,7 +139,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         // Address label
         pdf.setFontSize(10);
         pdf.setTextColor(128, 128, 128);
-        pdf.text("Address:", margin, gridY + 12);
+        pdf.text("Billing Address", margin, gridY + 12);
         pdf.setTextColor(0, 0, 0);
         pdf.text(invoiceData.recipientDetails.billTo.address, margin, gridY + 17);
       }
@@ -156,7 +156,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         // Address label
         pdf.setFontSize(10);
         pdf.setTextColor(128, 128, 128);
-        pdf.text("Address:", middleX, gridY + 12);
+        pdf.text("Shipping Address", middleX, gridY + 12);
         pdf.setTextColor(0, 0, 0);
         pdf.text(invoiceData.recipientDetails.shipTo.address, middleX, gridY + 17);
       }
