@@ -65,7 +65,7 @@ const NavBar: FC = () => {
       if (response.data && response.data.status === "success") {
         Cookies.remove("accessToken");
         toast.success("Successfully logged out.", { position: "bottom-right" });
-        router.push("/account/login");
+        router.replace("/account/login");
         setShowDropdown(null);
         setShowMobileMenu(false);
       }
