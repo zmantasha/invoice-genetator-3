@@ -11,6 +11,7 @@ import { useUser } from "../../hooks/UserContext";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 const NavBar: FC = () => {
   const [isLoggedin, setIsLoggedin] = useState<string | null>(null);
@@ -191,7 +192,7 @@ const NavBar: FC = () => {
                   {showDropdown && (
                     <div ref={dropdownRef} className={styles.dropdownMenu}>
                       <div className={styles.dropdownProfile}>
-                        <div className={styles.avatar}>{user &&  <img src={user?.user?.avatar ||"profile"} alt="Profile" className={styles.profileImage} />}</div>
+                        <div className={styles.avatar}>{user?.user?.avatar ?<Image src={user?.user?.avatar } alt="Profile" width={50} height={50} className={styles.profileImage} />:<Image src={"/default.avif" } alt="Profile" width={50} height={50} className={styles.profileImage} />}</div>
                         <div>
                           <p className={styles.dropdownProfileName}>
                             {user && user?.user?.firstName}
