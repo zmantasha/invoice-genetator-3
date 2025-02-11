@@ -83,7 +83,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     // Address label
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
-    doc.text("Address:", margin, gridY + 12);
+    doc.text("Billing Address", margin, gridY + 12);
     doc.setTextColor(0, 0, 0);
     doc.text(invoice.recipientDetails.billTo.address, margin, gridY + 17);
   }
@@ -104,7 +104,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
-    doc.text("Address:", middleX, gridY + 12);
+    doc.text("Shipping Address", middleX, gridY + 12);
     doc.setTextColor(0, 0, 0);
     doc.text(invoice.recipientDetails.shipTo.address,middleX, gridY + 17);
   }
