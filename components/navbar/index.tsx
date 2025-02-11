@@ -47,7 +47,7 @@ const NavBar: FC = () => {
   
       if (!accessToken) {
         toast.warn("You are not logged in.", { position: "bottom-right" });
-        router.push("/account/login");
+        router.replace("/account/login");
         return;
       }
   
