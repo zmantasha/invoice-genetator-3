@@ -10,6 +10,7 @@ import InvoiceGenerator from "../../../../components/invoicee/invoiceGenerator";
 import { Modal } from "../../../../components/ui/modal";
 import { Input } from "../../../../components/ui/input";
 import { MdEmail } from "react-icons/md";
+import Cookies from "js-cookie";
 import PDFGenerator from "../../../../components/invoicee/PDFGenerator";
 import { useUser } from "../../../../hooks/UserContext";
 // import SharePDFGenerator from "@/components/invoicee/SharePDFGenerator";
