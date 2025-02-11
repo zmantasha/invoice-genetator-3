@@ -21,6 +21,7 @@ export default function ViewPage() {
   const router=useRouter()
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+ const [deleteItemId, setDeleteItemId] =useState(false);
   const [shareUrl, setShareUrl] = useState("");
     const dropdownRef = useRef<HTMLDivElement | null>(null); 
   const fetchInvoice = async () => {
@@ -154,7 +155,28 @@ export default function ViewPage() {
     }
   };
 
-
+ // Handle deletion of an invoice
+    const handleDelete = async (id: string) => {
+      console.log(id);
+      try {
+        const accessToken = Cookies.get("accessToken");
+        // Delete the invoice on the backend
+        const deleteUrl = `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}`;
+        const response = await axios.delete(deleteUrl, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        });
+        console.log(response);
+        if (response.status === 200) {
+          router.replace("/user/myinvoice");
+        }
+      } catch (error) {
+        console.error("Failed to delete invoice:", error);
+      }
+      setDeleteItemId(false)
+    };
   return (
     <>
       <div className={styles.viewPage}>
@@ -221,13 +243,30 @@ export default function ViewPage() {
                         <div className={styles.dropdownContent} onClick={() => handleStatusChange(invoiceItem._id, invoiceItem.status)}>
                         <BadgeInfo className="w-4 h-4 mr-2 text-green-700"    />
                         {invoiceItem.status==="Paid" ?"Mark as not Paid":"Mark as Paid"}</div>
-                        <div
+                        <div onClick={() => setDeleteItemId(true)}
                           className={styles.dropdownContent}
                         >
-                          <Delete className="w-4 h-4 mr-2 text-red-500" />
+                          <Delete className="w-4 h-4 mr-2 text-red-500"  />
                           Delete
                         </div>
                       </div>)}
+                      {deleteItemId && (
+                    <div className={styles.popupOverlay}>
+                      <div className={styles.popup}>
+                        <h3>
+                          Are you sure you want to delete {invoiceItem?.recipientDetails.billTo.name}'s invoice?
+                        </h3>
+                        <div className={styles.popupButtons}>
+                          <button className={styles.confirmButton} onClick={() => {handleDelete(invoiceItem._id)}}>
+                            Confirm
+                          </button>
+                          <button className={styles.cancelButton} onClick={()=>setDeleteItemId(false)}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </span>
               </div>
               </div>
