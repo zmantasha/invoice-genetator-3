@@ -114,16 +114,16 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
       pdf.text("Address:", margin, contentY + 12);
       pdf.setTextColor(0, 0, 0);
       pdf.text(invoiceData.senderDetails.address, margin, contentY + 17);
-      contentY += 22; // Move further down
+      contentY += 13; // Move further down
 
       // Invoice Number (right-aligned)
-      pdf.setFontSize(24);
-      pdf.text(
-        invoiceData.invoiceDetails.number,
-        pageWidth - margin,
-        contentY - 10,
-        { align: "right" }
-      );
+      if (invoiceData.senderDetails.logo) {
+        pdf.setFontSize(24);
+        pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 20, { align: "right" });
+        }else{
+          pdf.setFontSize(24);
+          pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
+        }
 
       // Recipient and Invoice Details Grid (3 columns)
       const gridY = contentY + 18; // Adjust position
@@ -195,7 +195,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
       if (detailsData.length > 0) {
         // Add gray background for details box
         pdf.setFillColor(250, 250, 250);
-        pdf.rect(detailsX - 5, gridY - 5, 85 - rightMargin, detailsData.length * 10 + 10, "F");
+        pdf.rect(detailsX - 5, gridY - 5, 85 - rightMargin, detailsData.length * 10 + 1, "F");
 
         detailsData.forEach((detail, index) => {
           pdf.setFontSize(8);
@@ -210,7 +210,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
 
       // Items Table
       const tableStartY = Math.max(
-        gridY + (detailsData.length > 0 ? detailsData.length * 10 + 20 : 20),
+        gridY + (detailsData.length > 0 ? detailsData.length * 10 + 5 : 5),
         gridY + 30 // Minimum spacing from grid
       );
       const tableData = invoiceData.items.map((item, index) => [
