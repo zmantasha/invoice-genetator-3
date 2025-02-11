@@ -19,9 +19,9 @@ export default function Home() {
     // Redirect based on the authentication state
     if (isAuthenticated === null) return;  // Wait until the state is set
     if (isAuthenticated) {
-      router.push("/user/myinvoice");  // Redirect to /user/myinvoice if logged in
+      router.replace("/user/myinvoice");  // Redirect to /user/myinvoice if logged in
     } else {
-      router.push("/account/login");  // Redirect to /account/login if not logged in
+      router.replace("/account/login");  // Redirect to /account/login if not logged in
     }
   }, [isAuthenticated, router]); // Re-run the effect when isAuthenticated changes
 
