@@ -1,36 +1,49 @@
+
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { InvoiceData } from "../../types/invoice";
 import { formatCurrency } from "./format-currency";
 
-export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Promise<Blob> {
+export async function generateInvoicedoc(invoice: Omit<InvoiceData, "_id">): Promise<Blob> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-   const margin = 18;
+  const margin = 18;
   let contentY = margin;
-   // Header Section with Logo and Invoice Number
-     if (invoice.senderDetails.logo) {
-    const maxWidth = 50;
-    const maxHeight = 25;
   
-    const logoBase64 = invoice.senderDetails.logo;
-    const img = new Image();
-    img.src = logoBase64;
-  
-    // Calculate aspect ratio and dimensions
-    const aspectRatio = img.width / img.height;
-    let width = maxWidth;
-    let height = width / aspectRatio;
-  
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * aspectRatio;
+  // Header Section with Logo and Invoice Number
+  const addLogo = async () => {
+    if (invoice.senderDetails.logo) {
+      const maxWidth = 50;
+      const maxHeight = 25;
+
+      const logoBase64: string = invoice.senderDetails.logo;
+      const img = new Image();
+      img.src = `${logoBase64}`;
+      img.crossOrigin = "anonymous"; // Prevent CORS issues
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Failed to load image."));
+      });
+
+      // Calculate aspect ratio and dimensions
+      const aspectRatio = img.width / img.height;
+      let width = maxWidth;
+      let height = width / aspectRatio;
+
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * aspectRatio;
+      }
+
+      // Add the image to the PDF
+      doc.addImage(img, "JPEG", margin, margin, width, height);
+      contentY += height + 4; // Adjust Y position below the image
     }
-  
-    // Add the image
-    doc.addImage(logoBase64, "JPEG", margin, margin, width, height,);
-    contentY += height + 4; // Adjust Y position below the image
-  }
+  };
+
+  // Add the logo
+  await addLogo();
   
   // Add "From" section (below the logo)
   doc.setFontSize(10);
@@ -40,13 +53,14 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
   doc.text(invoice.senderDetails.name, margin, contentY + 5);
   
   // Address label
+  if (invoice.senderDetails.address) {
   doc.setFontSize(10);
   doc.setTextColor(128, 128, 128);
   doc.text("Address:", margin, contentY + 12);
   doc.setTextColor(0, 0, 0);
   doc.text(invoice.senderDetails.address, margin, contentY + 17);
   contentY += 13; // Move further down
-  
+  }
   // Invoice Number (right-aligned)
   if (invoice.senderDetails.logo) {
   doc.setFontSize(24);
@@ -56,9 +70,9 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     doc.text(invoice.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
   }
   // Recipient and Invoice Details Grid (3 columns)
-  const gridY = contentY + 18;
+  const gridY = contentY + 18; // Adjust position
   
-   // Bill To Column
+  // Bill To Column
   if (invoice.recipientDetails.billTo.name) {
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
@@ -73,6 +87,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     doc.setTextColor(0, 0, 0);
     doc.text(invoice.recipientDetails.billTo.address, margin, gridY + 17);
   }
+  
 
   // Ship To Column
   if (invoice.recipientDetails.shipTo.name) {
@@ -115,7 +130,8 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
       label: "PO Number",
       value: invoice.invoiceDetails.poNumber
     },
-    invoice.totals.balanceDue || invoice.totals.balanceDue==0 && {
+    invoice.totals.balanceDue !== null &&
+    invoice.totals.balanceDue !== undefined &&{
       label: "Balance",
       value: formatCurrency(invoice.totals.balanceDue, invoice.invoiceDetails.currency),
       color: "#DC2626"
@@ -179,12 +195,12 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     }
   });
 
+
   // Totals and Notes Section
- const finalY = (doc as any).lastAutoTable.finalY + 20;
+  const finalY = (doc as any).lastAutoTable.finalY + 20;
       
   // Fixed heights for sections
   const totalsHeight = 70; // Height for totals box
-  // const notesHeight = invoiceData.notes ? 100 : 0; // Fixed height for notes
   const notesHeight = invoice.notes ? doc.getTextDimensions(invoice.notes).h : 0
   const termsHeight = invoice.terms ? doc.getTextDimensions(invoice.terms).h : 0
   // const termsHeight = invoice.terms ? 100 : 0; // Fixed height for terms
@@ -207,7 +223,6 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     const totalsData = [
       { label: "Subtotal", value: formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency) },
       { label: "Discount", value: formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency) },
-      { label: "Shipping", value: formatCurrency(invoice.totals.shipping, invoice.invoiceDetails.currency) },
       { label: "Tax", value: formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency) },
       { label: "Total", value: formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency), bold: true },
       { label: "Amount Paid", value: formatCurrency(invoice.totals.amountPaid, invoice.invoiceDetails.currency) },
@@ -268,7 +283,6 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     const totalsData = [
       { label: "Subtotal", value: formatCurrency(invoice.totals.subtotal, invoice.invoiceDetails.currency) },
       { label: "Discount", value: formatCurrency(invoice.totals.discount, invoice.invoiceDetails.currency) },
-      { label: "Shipping", value: formatCurrency(invoice.totals.shipping, invoice.invoiceDetails.currency) },
       { label: "Tax", value: formatCurrency(invoice.totals.tax, invoice.invoiceDetails.currency) },
       { label: "Total", value: formatCurrency(invoice.totals.total, invoice.invoiceDetails.currency), bold: true },
       { label: "Amount Paid", value: formatCurrency(invoice.totals.amountPaid, invoice.invoiceDetails.currency) },
@@ -324,3 +338,4 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
 
   return doc.output("blob");
 }
+
