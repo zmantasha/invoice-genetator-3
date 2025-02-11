@@ -104,6 +104,52 @@
     gap: 20px;
     align-items: center;
 }
+.popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+  }
+  
+  .popup {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 350px;
+  }
+  
+  .popupButtons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+  .confirmButton,
+  .cancelButton {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .confirmButton {
+    background-color: #e65050;
+    color: white;
+    border-radius: 10px;
+  }
+  
+  .cancelButton {
+    background-color: gray;
+    color: white;
+    border-radius: 10px;
+  }
+
 
 /* Responsive styles */
 @media (max-width: 998px) {
