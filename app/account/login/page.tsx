@@ -39,7 +39,7 @@ export default function LoginPage() {
           
           // localStorage.setItem("accessToken",response.data.token)
           setCookie('accessToken', response.data.token);
-          router.push("/user/myinvoice")
+          router.replace("/user/myinvoice")
         }
       } catch (error) {
        if (axios.isAxiosError(error)) {
