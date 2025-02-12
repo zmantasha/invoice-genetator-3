@@ -1,4 +1,6 @@
-
+import { currencies } from "../constants/currencies";
+// Cache to store currency symbols
+const currencyCache: { [key: string]: string } = {};
 export function formatCurrency(amount: number | undefined, currencyCode: string): string {
   if (amount === undefined || isNaN(amount)) {
     return new Intl.NumberFormat('en-US', {
