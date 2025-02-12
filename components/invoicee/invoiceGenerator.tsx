@@ -1,10 +1,11 @@
-import { formatCurrency } from "../../lib/utils/format-currency";
+import { useMemo } from "react";
+import { formatCurrency} from "../../lib/utils/format-currency";
+import { toWords } from "number-to-words"; 
 
 interface InvoiceItem {
-    senderDetails: {
-    name: string,
-    logo:string, 
-     address: string
+    senderDetails: { name: string;
+      logo:string;
+      address:string; 
     };
     invoiceDetails: {
       number: string;
@@ -37,11 +38,26 @@ interface InvoiceItem {
   }
   
   export default function InvoiceGenerator({ invoiceItem }: { invoiceItem: InvoiceItem }) {
+    const amountInWords = useMemo(() => {
+      if (invoiceItem.status === "Paid") {
+        return toWords(invoiceItem.totals.amountPaid).replace(/\b\w/g, (char) =>
+          char.toUpperCase()
+        ); // Capitalize the first letter of each word
+      }
+      return "";
+    }, [invoiceItem]);
     return (
       <>
-        <div className="p-4 sm:p-6 lg:p-8">
+       <div className="p-4 sm:p-6 lg:p-8 relative">
+        {invoiceItem.status === "Paid" && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="transform rotate-45 text-green-500/20 text-9xl font-bold">
+              PAID
+            </div>
+          </div>
+        )}
           {/* Header Section */}
-       <div className="flex flex-col sm:flex-row sm:justify-between items-start">
+          <div className="flex flex-col sm:flex-row sm:justify-between items-start">
             {/* Sender Details */}
             <div className="flex flex-col sm:flex-row sm:items-center space-x-0 sm:space-x-4">
               <div className="flex flex-col">
@@ -66,10 +82,10 @@ interface InvoiceItem {
             {/* Invoice Number */}
             <h1 className="text-3xl sm:text-4xl mt-4 sm:mt-0">{invoiceItem.invoiceDetails.number}</h1>
           </div>
-  
+
           {/* Recipient and Invoice Details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-           <div>
+            <div>
               {invoiceItem.recipientDetails.billTo.name && (
                 <div>
                   <p className="text-gray-600">Bill To</p>
@@ -83,7 +99,8 @@ interface InvoiceItem {
                 </div>
               )}
             </div>
-           <div>
+
+            <div>
               {invoiceItem.recipientDetails.shipTo.name && (
                 <div>
                   <p className="text-gray-600">Ship To</p>
@@ -203,15 +220,6 @@ interface InvoiceItem {
                 </p>
               </div>
               <div className="flex justify-between py-1">
-                <p className="text-gray-600">Shipping</p>
-                <p>
-                  {formatCurrency(
-                    invoiceItem.totals.shipping,
-                    invoiceItem.invoiceDetails.currency
-                  )}
-                </p>
-              </div>
-              <div className="flex justify-between py-1">
                 <p className="text-gray-600">Tax</p>
                 <p>
                   {formatCurrency(
@@ -231,24 +239,33 @@ interface InvoiceItem {
                 </p>
               </div>
               <div className="flex justify-between py-2">
-                <p className="text-gray-600">Amount Paid</p>
-                <p className={invoiceItem.status === "Paid" ? "text-green-600 font-semibold" : ""}>
-                  {formatCurrency(
-                    invoiceItem.totals.amountPaid,
-                    invoiceItem.invoiceDetails.currency
-                  )}
-                </p>
-              </div>
-              <hr className="my-2" />
-              <div className="flex justify-between font-bold text-red-600 py-2">
-              <p className={invoiceItem.status === "Paid" ? "text-green-600" : "text-red-600"}>Balance Due</p>
+              <p className="text-gray-600">Amount Paid</p>
+              <p className={invoiceItem.status === "Paid" ? "text-green-600 font-semibold" : ""}>
+                {formatCurrency(
+                  invoiceItem.totals.amountPaid,
+                  invoiceItem.invoiceDetails.currency
+                )}
+              </p>
+            </div>
+            <hr className="my-2" />
+            <div className="flex justify-between font-bold py-2">
               <p className={invoiceItem.status === "Paid" ? "text-green-600" : "text-red-600"}>
-                  {formatCurrency(
-                    invoiceItem.totals.balanceDue,
-                    invoiceItem.invoiceDetails.currency
-                  )}
-                </p>
-              </div>
+                Balance Due
+              </p>
+              <p className={invoiceItem.status === "Paid" ? "text-green-600" : "text-red-600"}>
+                {formatCurrency(
+                  invoiceItem.totals.balanceDue,
+                  invoiceItem.invoiceDetails.currency
+                )}
+              </p>
+            </div>
+                {/* Show Amount in Words if Paid */}
+                {invoiceItem.status === "Paid" && (
+                  <div className="text-black-600 text-sm font-bold italic text-right mt-1">
+                    <span>Amount in Words:</span> ({amountInWords} only)
+                  </div>
+                  ) }
+
             </div>
           </div>
         </div>
