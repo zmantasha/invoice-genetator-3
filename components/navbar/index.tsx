@@ -114,7 +114,7 @@ const NavBar: FC = () => {
     <nav className={styles.nav}>
       <div className={styles.navContent}>
         <div className={styles.leftContainer}>
-          <h3 className={styles.logo}onClick={() => handleNavigation("/user/myinvoice")>instantinvoicer.com</h3>
+          <h3 className={styles.logo} onClick={() => handleNavigation("/user/myinvoice")>instantinvoicer.com</h3>
 
           <div
             className={`${styles.menuContainer} ${
