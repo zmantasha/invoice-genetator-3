@@ -31,6 +31,7 @@ export function formatCurrency(amount: number | undefined, currencyCode: string)
   if (currencyCode === 'INR') {
     formattedCurrency = formattedCurrency.replace('₹', 'Rs');
   }
-
+  // Add a space between the currency symbol and the amount
+  formattedCurrency = formattedCurrency.replace(/(\D)(\d)/, '$1 $2');
   return formattedCurrency;
 }
