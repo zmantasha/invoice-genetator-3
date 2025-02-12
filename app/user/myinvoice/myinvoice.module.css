@@ -91,7 +91,7 @@
 
 .invoiceTable tbody {
   font-size: 14px;
-  text-transform: lowercase;
+  text-transform: capitalize;
 }
 
 .invoiceTable tbody tr:nth-child(even) {
