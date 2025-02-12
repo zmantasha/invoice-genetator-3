@@ -30,6 +30,7 @@
   -webkit-text-fill-color: transparent;
   margin-right: 2rem;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .menuContainer {
