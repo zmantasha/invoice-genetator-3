@@ -215,17 +215,15 @@ const InvoiceItemsTable = memo(({ items, currency, onUpdateItems, formErrors, fo
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
+                      <span className="text-muted-foreground">{getCurrencySymbol(currency)} </span>
                       <Input
-                        type="text"
-                        value={item.rate === 0 ? "" : `${getCurrencySymbol(currency)} ${item.rate}`}
+                        type="number"
+                        value={item.rate === 0 ? "" : item.rate}
                         placeholder="rate"
-                        onChange={(e) => {
-                          const value = e.target.value.replace(currency, "").trim(); // Remove currency symbol before parsing
-                          updateItem(item.id, "rate", value === "" ? "" : Number(value));
-                        }}
+                        onChange={(e) => updateItem(item.id, "rate", e.target.value === "" ? "" :Number(e.target.value))}
                         onFocus={() => setFocusedCell({ rowId: item.id, column: "rate" })}
                         onPaste={(e) => handleCellPaste(e, item.id, "rate")}
-                        className="border-transparent hover:border-input focus:border-input bg-transparent w-24 text-left"
+                        className="border-transparent hover:border-input focus:border-input bg-transparent  w-24 text-left"
                       />
                     </div>
                     <FormError message={formErrors?.items?.[index]?.rate}   className={formTouched?.items?.[index]?.rate ? "block": "hidden"}/>
