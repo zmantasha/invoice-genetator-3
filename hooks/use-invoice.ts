@@ -39,7 +39,7 @@ const initialInvoiceData: Omit<InvoiceData, '_id'> = {
     dueDate: "",
     paymentTerms: "",
     poNumber: "",
-    currency: "",
+    currency: "USD",
   },
   items: [],
   totals: {
