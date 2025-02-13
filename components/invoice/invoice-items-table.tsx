@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Plus, Trash2, FileSpreadsheet, AlertCircle } from "lucide-react";
-import { formatCurrency } from "../../lib/utils/format-currency";
+import { formatCurrency, getCurrencySymbol } from "../../lib/utils/format-currency";
 import { calculateItemAmount } from "../../lib/utils/invoice-calculations";
 import { InvoiceItem } from "../../types/invoice";
 import { useState, useRef, useEffect } from "react";
@@ -215,15 +215,17 @@ const InvoiceItemsTable = memo(({ items, currency, onUpdateItems, formErrors, fo
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
-                      <span className="text-muted-foreground">{currency}</span>
                       <Input
-                        type="number"
-                        value={item.rate === 0 ? "" : item.rate}
+                        type="text"
+                        value={item.rate === 0 ? "" : `${getCurrencySymbol(currency)} ${item.rate}`}
                         placeholder="rate"
-                        onChange={(e) => updateItem(item.id, "rate", e.target.value === "" ? "" :Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(currency, "").trim(); // Remove currency symbol before parsing
+                          updateItem(item.id, "rate", value === "" ? "" : Number(value));
+                        }}
                         onFocus={() => setFocusedCell({ rowId: item.id, column: "rate" })}
                         onPaste={(e) => handleCellPaste(e, item.id, "rate")}
-                        className="border-transparent hover:border-input focus:border-input bg-transparent  w-24 text-left"
+                        className="border-transparent hover:border-input focus:border-input bg-transparent w-24 text-left"
                       />
                     </div>
                     <FormError message={formErrors?.items?.[index]?.rate}   className={formTouched?.items?.[index]?.rate ? "block": "hidden"}/>
