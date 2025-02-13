@@ -57,7 +57,7 @@ const InvoiceTotals = memo(({
           }
           className="w-20 text-right"
         />
-        <span className="text-gray-600">% discount</span>
+        <span className="text-gray-600">% Discount</span>
         <span className="ml-auto">{formatCurrency(totals.discount, currency)}</span>
       </div>
 
