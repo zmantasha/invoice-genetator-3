@@ -18,6 +18,7 @@ export default function ViewPage() {
   const { user } = useUser();
   const [invoiceItem, setInvoiceItem] = useState<any>(null); // Use 'any' if the invoiceItem structure is not defined yet
   const { id } = useParams();
+  const [copied, setCopied] = useState(false);
   
   const router=useRouter()
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
@@ -58,15 +59,6 @@ export default function ViewPage() {
         break;
       case "email":
         window.location.href = `mailto:?subject=Invoice Share&body=${encodedMessage}`;
-        break;
-      case "twitter":
-        window.open(`https://twitter.com/intent/tweet?text=${encodedMessage}`, "_blank");
-        break;
-      case "facebook":
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, "_blank");
-        break;
-      case "instagram":
-        // Note: Instagram doesn't support direct sharing via URL
         break;
     }
   };
@@ -178,6 +170,17 @@ export default function ViewPage() {
       }
       setDeleteItemId(false)
     };
+
+// copy url
+   const handleCopy = () => {
+    navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+
+    // Reset the button text back to "Copy" after 3 seconds
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
+  };
   return (
     <>
       <div className={styles.viewPage}>
@@ -295,14 +298,8 @@ export default function ViewPage() {
                 readOnly
                 className="border-black hover:border-input focus:border-input"
               />
-              <Button
-                variant="outline"
-                onClick={() => {
-                  navigator.clipboard.writeText(shareUrl);
-                  alert("URL copied to clipboard!");
-                }}
-              >
-                Copy
+              <Button variant="outline" onClick={handleCopy}>
+                {copied ? "Copied!" : "Copy"}
               </Button>
             </div>
             <a
@@ -326,24 +323,6 @@ export default function ViewPage() {
               className="hover:opacity-80 transition-opacity"
             >
               <MdEmail className="text-red-500 text-4xl" />
-            </button>
-            <button
-              onClick={() => handleShare("twitter")}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <FaTwitter className="text-blue-500 text-4xl" />
-            </button>
-            <button
-              onClick={() => handleShare("facebook")}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <FaFacebook className="text-blue-500 text-4xl" />
-            </button>
-            <button
-              onClick={() => handleShare("instagram")}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <FaInstagram className="text-pink-500 text-4xl" />
             </button>
           </div>
         </div>
