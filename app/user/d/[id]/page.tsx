@@ -3,7 +3,7 @@ import { useParams, useRouter } from "next/navigation";
 import styles from "./view.module.css";
 import { FaFacebook, FaInstagram, FaShareSquare, FaTwitter, FaWhatsapp } from "react-icons/fa";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState,useCallback } from "react";
 import { Button } from "../../../../components/ui/button";
 import { BadgeInfo, BookMarked, Calendar, ChevronDown, Delete, Dot, Edit, User } from "lucide-react";
 import InvoiceGenerator from "../../../../components/invoicee/invoiceGenerator";
@@ -22,11 +22,11 @@ export default function ViewPage() {
   
   const router=useRouter()
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(true);
  const [deleteItemId, setDeleteItemId] =useState(false);
   const [shareUrl, setShareUrl] = useState("");
     const dropdownRef = useRef<HTMLDivElement | null>(null); 
-  const fetchInvoice = async () => {
+  const fetchInvoice = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER}/api/v1/invoice/invoices/${id}`
@@ -36,15 +36,20 @@ export default function ViewPage() {
     } catch (error) {
       console.log(error);
     }
-  };
+  },[id]);
 
   const handleOpenModal = () => {
-
       const generatedUrl = `${window.location.protocol}//${window.location.host}/share/${id}`; // Replace with the actual field in your invoice data
       setShareUrl(generatedUrl);
       setModalOpen(true);
   }; 
 
+ useEffect(()=>{
+     if(modalOpen===true){
+      const generatedUrl = `${window.location.protocol}//${window.location.host}/share/${id}`; // Replace with the actual field in your invoice data
+      setShareUrl(generatedUrl);
+     }
+  },[id])
 
 
   const handleShare = (platform: string) => {
@@ -67,7 +72,7 @@ export default function ViewPage() {
   
 
   useEffect(() => {
-    if (id) {
+    if (id && !invoiceItem) {
       fetchInvoice();
     }
   }, [id]);
@@ -163,6 +168,7 @@ export default function ViewPage() {
         });
         console.log(response);
         if (response.status === 200) {
+          setDeleteItemId(false)
           router.replace("/user/myinvoice");
         }
       } catch (error) {
