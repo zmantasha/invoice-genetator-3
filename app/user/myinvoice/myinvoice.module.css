@@ -1,6 +1,6 @@
 .myInvoicePage{
     min-height: 100vh;
-    background-color: #f4f7fc; 
+    background-color: #ffffff; 
 }
 .myInvoiceContainer{
     display: flex;
@@ -12,7 +12,7 @@
 .invoiceCard{
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     width: 100%;
     max-width: 1334px;
     /* padding: 30px; */
@@ -26,29 +26,7 @@
 .invoiceTitle{
     font-size: 25px;
     font-weight: 700;
-    background: linear-gradient(90deg, #0d1a0e, #14321a, #1b4720, #3a3a3a, #000000);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-.newInvoiceButton {
-    background: linear-gradient(90deg, #29642b, #1f6a30, #4CAF50, #6fd96f); /* Green gradient */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s, background-color 0.3s;
-}
-
-.newInvoiceButton:hover {
-    /* transform: scale(1.05); Slightly enlarge on hover */
-    background: linear-gradient(90deg, #4CAF50, #6fd96f, #29642b); /* Reverse gradient */
-}
-
-.newInvoiceButton:active {
-    transform: scale(0.95); /* Shrink slightly when clicked */
+    color: #003366;
 }
 .noInvoiceFound{
     color: #656a6a;
@@ -77,7 +55,7 @@
 
 .invoiceTable th,
 .invoiceTable td {
-  padding: 12px 16px;
+  padding: 8px 16px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
@@ -128,7 +106,7 @@
 }
 
 .dropdownbutton:hover {
-  color: #45a049;
+  color: #003366;
 }
 
 /* Dropdown menu */
@@ -155,7 +133,7 @@
 
 .dropdownMenu div:hover {
   background-color: #f4f4f4;
-  color: #29642b;
+  color: #003366;
   border-radius: 4px;
 }
 
@@ -170,7 +148,7 @@
 }
 
 .viewButton:hover {
-  color: #45a049;
+  color: #003366;
 }
 .dropdownContent{
   display:  flex;
