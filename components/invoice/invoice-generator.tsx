@@ -92,7 +92,7 @@ export default function InvoiceGenerator({ invoiceId }: { invoiceId?: string }) 
               <Button 
           type="button" 
           variant="outline" 
-          className="text-green-600 w-full sm:w-auto"
+          className="text-[#003366] w-full sm:w-auto disabled:cursor-not-allowed disabled:opacity-60"
           onClick={() => saveInvoice()}
           disabled={formik.isSubmitting}  // Disable when submitting
         >
