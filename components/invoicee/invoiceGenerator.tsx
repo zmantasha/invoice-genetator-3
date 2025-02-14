@@ -51,9 +51,9 @@ interface InvoiceItem {
        <div className="p-4 sm:p-6 lg:p-8 relative">
         {invoiceItem.status === "Paid" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="transform rotate-45 text-blue-500/20 text-9xl font-bold">
-              PAID
-            </div>
+             <div className="transform rotate-[320deg] text-[rgb(156_190_245_/_20%)] text-9xl font-bold">
+          PAID
+        </div>
           </div>
         )}
           {/* Header Section */}
