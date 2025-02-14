@@ -3,7 +3,7 @@
 /* CSS - myaccount.module.css */
 
 .myaccountPage{
-    background-color: #f4f7fc;
+    background-color: #ffffff;
     min-height: 100vh;
 }
 .myProfileContainer {
@@ -17,7 +17,7 @@
 .profileCard {
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     width: 100%;
     max-width: 1334px;
     padding: 30px;
@@ -27,9 +27,7 @@
 .profileTitle {
     font-size: 32px;
     font-weight: 700;
-    background: linear-gradient(90deg,#29642b, #1f6a30, #4CAF50, #6fd96f);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color:#003366;
     margin-bottom: 15px;
     text-align: center;
 }
@@ -49,8 +47,8 @@
 
 .profileEmail {
     font-weight: 600;
-    color: #43a047; /* Vibrant green with depth */
-    text-shadow: 0 0 5px rgba(76, 175, 80, 0.7);
+    color: #003366; /* Vibrant green with depth */
+/*     text-shadow: 0 0 5px rgba(76, 175, 80, 0.7); */
 }
 
 .changeProfile {
@@ -83,7 +81,7 @@
 }
 
 .saveButton {
-    background-color:#4CAF50;
+    background-color:#0e365e;
     color: #fff;
     border: none;
     margin-top: 20px;
@@ -95,7 +93,8 @@
 }
 
 .saveButton:hover {
-    background-color: #317e33;
+    background-color:#003380;
+    transition: 1s ease-in-out;
 }
 .saveButton:disabled {
     cursor: not-allowed;
