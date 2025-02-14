@@ -127,15 +127,19 @@ export function useInvoice(initialData?: InvoiceData) {
     };
   }, [initialData]);;
 
-  const validationSchema =  useMemo(() =>Yup.object({
+ const validationSchema =  useMemo(() =>Yup.object({
     senderDetails: Yup.object({
-      name: Yup.string().required("Business name is required"),
-      address: Yup.string().required("Business address is required"),
+      name: Yup.string().max(50,"Sender Name must be at most 50 characters").required("Business name is required"),
+      address: Yup.string().max(60,"Sender Address must be at most 60 characters").required("Business address is required"),
     }),
     recipientDetails: Yup.object({
       billTo: Yup.object({
-        name: Yup.string().required("Recipient name is required"),
-        address: Yup.string().required("Billing address is required"),
+        name: Yup.string().max(50,"Billing Name must be at most 50 characters").required("Recipient name is required"),
+        address: Yup.string().max(60,"Billing Address must be at most 60 characters").required("Billing address is required"),
+      }),
+      shipTo: Yup.object({
+        name: Yup.string().max(50,"Shipping Name must be at most 50 characters"),
+        address: Yup.string().max(60,"Shipping Address must be at most 60 characters"),
       }),
     }),
     invoiceDetails: Yup.object({
