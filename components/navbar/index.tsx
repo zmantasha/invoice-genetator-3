@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { FC, useEffect, useRef, useState } from "react";
-import Button from "./Button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import styles from "./navbar.module.css";
 import { useUser } from "../../hooks/UserContext";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 
@@ -186,8 +185,9 @@ const NavBar: FC = () => {
             <div className={styles.mobileAuth}>
               {isLoggedin && (
                 <div className={styles.dropdownContainer}>
-                  <div onClick={toggleDropdown} className={styles.linkProfile}>
-                    {user?.user ? `${user?.user?.firstName} ${user?.user?.lastName}` : "Profile"}
+                  <div  className={styles.linkProfile}>
+                    {user?.user ? `${user?.user?.firstName} ${user?.user?.lastName}` : <></>}
+                    <ChevronDown className="w-4 h-4 ml-2" onClick={toggleDropdown} />
                   </div>
                   {showDropdown && (
                     <div ref={dropdownRef} className={styles.dropdownMenu}>
