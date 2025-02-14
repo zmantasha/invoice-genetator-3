@@ -11,6 +11,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+ font-family: 'PayPal-Sans', Helvetica Neue, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
