@@ -3,14 +3,14 @@
     justify-content: center;
     align-items: center;
     min-height: 90vh;
-    background-color: #f4f7fc;
+     background-color: #ffffff;
     padding: 20px;
   }
   
   .card {
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     width: 100%;
     max-width: 60%;
     padding: 30px;
@@ -38,7 +38,7 @@
   }
   
   .button {
-    background-color: #258226;
+    background-color: #0e365e;
     color: white;
     border: none;
     padding: 12px;
@@ -49,7 +49,7 @@
   }
   
   .button:hover {
-    background-color: #4CAF50;
+    background-color: #003366;
   }
   .button:disabled {
     cursor: not-allowed;
@@ -62,7 +62,7 @@
   }
   
   .link {
-    color: #4CAF50;
+    color: #003366;
     text-decoration: none;
   }
   
