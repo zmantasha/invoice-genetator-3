@@ -6,6 +6,7 @@ import { FcPaid } from "react-icons/fc";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { formatCurrency } from "../../lib/utils/format-currency";
 import { useRouter } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
 interface InvoiceItem {
   _id: string;
@@ -145,7 +146,7 @@ export default function InvoiceTable({
                   <button className={styles.viewButton} onClick={() => handleNavigation(`/user/d/${item._id}`)}>
                     View
                   </button>
-                  <div className={styles.dropdownbutton} onClick={() => toggleDropdown(item._id)}></div>
+                  <div onClick={() => toggleDropdown(item._id)}><ChevronDown className="w-4 h-4 ml-2" /></div>
                   {showDropdown === item._id && (
                     <div ref={dropdownRef} className={styles.dropdownMenu}>
                       <div className={styles.dropdownContent} onClick={() => handleEditInvoice(item._id)}>
