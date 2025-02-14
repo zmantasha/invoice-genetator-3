@@ -1,8 +1,8 @@
 .nav {
   /* background-color: #333; */
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   position: relative;
-  background-color: #535252; /* Change to your preferred background color */
+  background-color: #0e365e; /* Change to your preferred background color */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -25,9 +25,7 @@
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  background: linear-gradient(90deg, #31c453, #43e665, #2ee84b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color:#ffffff;
   margin-right: 2rem;
   white-space: nowrap;
   cursor: pointer;
@@ -98,25 +96,25 @@
   text-transform: capitalize;
 }
 
-.linkProfile::after {
+/* .linkProfile::after {
   content: '▼';
   margin-left: 0.5rem;
   font-size: 0.75rem;
-}
+} */
 
 .dropdownMenu {
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: #2a2a2a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #003366;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 6px;
   z-index: 1000;
-  min-width: 280px; /* Ensures minimum width */
+  min-width: 375px; /* Ensures minimum width */
   width: fit-content; /* Expands based on content */
   max-width: 600px; /* Prevents it from being too wide */
   margin-top: 0.5rem;
-  padding: 0.5rem;
+/*   padding: 0.5rem; */
   overflow: hidden;
   white-space: nowrap; /* Prevents text from breaking */
 }
@@ -126,7 +124,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  color: #b3b1b1;
+  color: #e0e0e0;
   max-width: 100%;
   white-space: nowrap;
 }
@@ -161,13 +159,13 @@
   padding: 0.75rem 1rem;
   color: #e0e0e0;
   cursor: pointer;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #ffffff;
   transition: all 0.3s ease;
 }
 
 .dropdownItem:hover {
   color: #ffffff;
-  background: linear-gradient(90deg, #2a2a2a, #353535, #2a2a2a);
+  background-color: #003380;
   text-shadow: 0 0 12px rgba(76, 175, 80, 0.8);
 }
 
@@ -208,7 +206,7 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #333;
+    background-color: #003366;
     flex-direction: column;
     align-items: stretch;
     padding: 1rem;
