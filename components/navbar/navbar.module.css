@@ -110,7 +110,7 @@
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 6px;
   z-index: 1000;
-  min-width: 375px; /* Ensures minimum width */
+  min-width: 350px; /* Ensures minimum width */
   width: fit-content; /* Expands based on content */
   max-width: 600px; /* Prevents it from being too wide */
   margin-top: 0.5rem;
