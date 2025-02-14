@@ -6,6 +6,7 @@ import InvoiceTable from "../../../components/invoicee/InvoiceTable";
 import axios from "axios";
 import { useUser } from "../../../hooks/UserContext";
 import { useRouter } from "next/navigation";
+import { Button } from "../../../components/ui/button";
 
 export default function MyInvoice() {
   const { user } = useUser();
@@ -72,12 +73,9 @@ export default function MyInvoice() {
         <div className={styles.invoiceCard}>
           <div className={styles.invoiceHeader}>
             <h2 className={styles.invoiceTitle}>My Invoices</h2>
-            <button 
-              className={styles.newInvoiceButton} 
-              onClick={handleNewInvoice}
-            >
-              New Invoice
-            </button>
+             <Button variant="outline"  className="text-white bg-[#003366] hover:bg-[#003380] hover:text-white"  onClick={handleNewInvoice}>
+            New Invoice 
+            </Button>
           </div>
           <div className={styles.invoiceContainer}>
             {invoiceItem && invoiceItem.length > 0 ? (
