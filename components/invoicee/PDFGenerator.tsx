@@ -284,7 +284,7 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
         head: [["Sr.No", "Item", "Quantity", "Rate", "Amount"]],
         body: tableData,
         theme: "grid",
-        headStyles: { fillColor: [51, 51, 51] },
+        headStyles: { fillColor: [14, 54, 94] },
         columnStyles: {
           0: { cellWidth: 20 },
           1: { cellWidth: "auto" },
