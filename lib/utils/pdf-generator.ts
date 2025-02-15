@@ -229,7 +229,7 @@ export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Pro
     //   textColor: [0, 0, 0],
     //   fontSize: 10
     // },
-    headStyles: { fillColor: [51, 51, 51] },
+    headStyles: { fillColor: [14, 54, 94] },
     columnStyles: {
       0: { cellWidth: 20 },
       1: { cellWidth: "auto" },
