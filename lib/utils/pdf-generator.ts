@@ -4,7 +4,7 @@ import "jspdf-autotable";
 import { InvoiceData } from "../../types/invoice";
 import { formatDownloadCurrency } from "./format-currency";
 
-export async function generateInvoicedoc(invoice: Omit<InvoiceData, "_id">): Promise<Blob> {
+export async function generateInvoicePDF(invoice: Omit<InvoiceData, "_id">): Promise<Blob> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 18;
