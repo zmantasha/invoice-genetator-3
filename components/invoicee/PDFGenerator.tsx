@@ -135,9 +135,11 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
       // Invoice Number (right-aligned)
       if (invoiceData.senderDetails.logo) {
         pdf.setFontSize(24);
+        pdf.setTextColor(14, 54, 94);
         pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 20, { align: "right" });
       } else {
         pdf.setFontSize(24);
+        pdf.setTextColor(14, 54, 94);
         pdf.text(invoiceData.invoiceDetails.number, pageWidth - margin, margin + 10, { align: "right" });
       }
 
