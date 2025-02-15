@@ -324,7 +324,6 @@ export default function PDFGenerator({ invoiceData, fileName }: PDFGeneratorProp
           { label: "Subtotal", value: formatDownloadCurrency(invoiceData.totals.subtotal, invoiceData.invoiceDetails.currency) },
           { label: "Discount", value: formatDownloadCurrency(invoiceData.totals.discount, invoiceData.invoiceDetails.currency) },
           { label: "Tax", value: formatDownloadCurrency(invoiceData.totals.tax, invoiceData.invoiceDetails.currency) },
-          { label: "Tax", value: formatDownloadCurrency(invoiceData.totals.tax, invoiceData.invoiceDetails.currency) },
           { label: "Total", value: formatDownloadCurrency(invoiceData.totals.total, invoiceData.invoiceDetails.currency), bold: true },
           { label: "Amount Paid", value: formatDownloadCurrency(invoiceData.totals.amountPaid, invoiceData.invoiceDetails.currency) },
           { label: "Balance Due", value: formatDownloadCurrency(invoiceData.totals.balanceDue, invoiceData.invoiceDetails.currency), color: "#DC2626" },
